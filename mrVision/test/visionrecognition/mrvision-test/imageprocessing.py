@@ -1,0 +1,106 @@
+import numpy as np
+import cv2
+import os
+
+def openCam(camNum=0, vidW=160, vidH=120):
+	'''
+	Returns VideoCapture object for camera
+	'''
+	if type(camNum) == int and camNum >= 0:
+		cam = cv2.VideoCapture(0)
+		print "init cam", camNum, " width", str(vidW)+"x"+str(vidH)
+		cam.set( cv2.cv.CV_CAP_PROP_FRAME_WIDTH, vidW )
+		cam.set( cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, vidH )
+		return cam
+	return False
+
+
+def getImgFromCam(cam=None, grey=False):
+	'''
+	Grabs image from camera 
+	'''
+	if cam != None:
+		retval, img = cam.read()
+		if retval:
+			if grey:
+				img = cv2.cvtColor( img, cv2.COLOR_RGB2GRAY )
+			return img
+	return None
+	
+	
+def getImgFromFile(fname=None, grey=False):
+	'''
+	Grabs image from file
+	'''
+	if type(fname) == str and os.path.isfile(fname):
+		img = cv2.imread( fname, 1 )
+		if grey:
+			img = cv2.cvtColor( img, cv2.COLOR_RGB2GRAY )
+		return img
+		
+	return None
+		
+
+def getChessBoardCorners(img, patternSize, term=(cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_COUNT,30,0.1), subpix=(5,5)):
+	'''
+	Tries to find chessboard corners in image
+	'''
+	found = False
+	corners = None
+	if img != None and patternSize != None:
+		gray = cv2.cvtColor( img, cv2.COLOR_RGB2GRAY )
+		found, corners = cv2.findChessboardCorners( gray, patternSize )
+		if found:			
+			cv2.cornerSubPix( gray, corners, subpix, (-1, -1), term )
+			corners.reshape(-1, 2)
+					
+	return found, corners
+	
+	
+def findChessBoardPatternSize(img, xMax=10, yMax=10, xStart=3, yStart=3):
+	'''
+	Finds maximum chessboard pattern size in image
+	'''
+	if xMax > 2 and yMax > 2 and xStart > 2 and yStart > 2:
+		patternX = xStart
+		patterny = yStart
+		patternSize = []
+		found = False
+			
+		# try every compination of pattern size
+		for x in range(3, xMax+1):
+			for y in range(3, yMax+1):
+				# check for pattern in image
+				if getChessBoardCorners( img, (x,y) )[0]:
+					# found pattern
+					found = True
+					patternSize.append( (x,y) )
+					
+		if found:
+			# return found pattern
+			return patternSize		
+	return None
+	
+	
+def getCalibrationData(img, obj_points, img_points):
+	'''
+	Returns calibration data camera_matrix, dist_coefs for image
+	'''
+	camera_matrix = None
+	dist_coefs = None
+	if img != None and obj_points != None and img_points != None:
+		h, w = img.shape[:2]
+		rms, camera_matrix, dist_coefs, rvecs, tvecs = cv2.calibrateCamera( obj_points, img_points, (w, h) )
+		
+	return camera_matrix, dist_coefs
+
+
+def undistortImg( img, camera_matrix, dist_coefs ):
+	'''
+	Undistorts image using calibration data
+	'''
+	if img != None and camera_matrix != None and dist_coefs != None:
+		return cv2.undistort( img, camera_matrix, dist_coefs )
+
+	return None
+
