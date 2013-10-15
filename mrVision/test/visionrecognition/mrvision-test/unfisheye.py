@@ -51,6 +51,7 @@ if findPattern:
 	
 	# find pattern
 	if img != None:	
+		
 		print "searching for chessboard pattern"
 		pattern = findChessBoardPatternSize( img, 20, 20, 5, 5 )
 	
@@ -80,7 +81,7 @@ while not ex and (usePic or cam):
 	
 	if img != None:
 		# show source
-		#cv2.imshow( "source", cv2.resize(img, (320,240)) )
+		cv2.imshow( "source", img )
 	
 		print "processing img..."
 		# get chess board corners

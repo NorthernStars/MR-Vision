@@ -8,12 +8,24 @@ Mixed-Reality Vision module
 
 from mrLib.config.mrConfigParser import mrConfigParser
 from mrLib.logging import mrLogger
-from core import mrVisionModule
+from src.mrVision.core.mrVisionModule import mrVisionModule
+from src.mrVision.gui.GuiLoader import GuiLoader
+
+from PyQt4 import QtGui
+
+import os, sys
 
 
 if __name__ == '__main__':
     
+    ''' set current working padth '''
+    path = os.path.dirname(sys.argv[0])
+    if not path:
+        path = str(os.getcwd())
+        sys.argv[0] = path + "/" + str(sys.argv[0])        
+    os.chdir(path)
     
+    # read config
     config = mrConfigParser("../config.ini")
     
     logLevel = config.getConfigValue("GENERAL", "logLevel")
@@ -23,4 +35,13 @@ if __name__ == '__main__':
     except:
         pass
     
-    visionModule = mrVisionModule.mrVisionModule( config )
+    # create gui app
+    app = QtGui.QApplication(sys.argv)
+    guiloader = GuiLoader()
+    guiloader.show()
+    
+    # create vision module
+    visionModule = mrVisionModule( config, guiloader )
+    
+    # show gui
+    app.exec_()

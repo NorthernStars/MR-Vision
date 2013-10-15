@@ -10,9 +10,9 @@ from mrLib.networking.data import mrVisionData
 from mrLib.networking.data import mrDataTags
 from mrLib.logging import mrLogger
 
-from mrVisionRecognition import mrVisionRecognition
-
-from time import time
+from time import time, sleep
+from thread import start_new_thread
+from src.mrVision.gui.GuiLoader import GuiLoader
 
 
 
@@ -22,15 +22,15 @@ class mrVisionModule(object):
     classdocs
     '''
     __visionConfig = mrConfigParser()
-    __visionRecognition = mrVisionRecognition()
     __visionHostName = "vision"
     __visionCalibImg = "img/calibration.jpg"
+    __gui = GuiLoader(True)
     
     __socketManager = None
-    __mode = mrVisionData.VISION_MODE_CALIB
+    __mode = mrVisionData.VISION_MODE_CALIBRATE_DIST
     __connectionTimeout = 30.0
 
-    def __init__(self, config=None):
+    def __init__(self, config=None, guiloader=None):
         '''
         Constructor
         '''
@@ -45,11 +45,16 @@ class mrVisionModule(object):
             mrLogger.log( "No configuration specified", mrLogger.LOG_LEVEL['info'] ) 
         
         # load network interface
-        ret = self.__initNetworkInterface()
+        #ret = self.__initNetworkInterface()
+        ret = True
         
         # start image processing
         if ret:
-            self.__processImage()
+            start_new_thread( self.__processImage, () )
+        
+        # start gui
+        if guiloader != None:
+            self.__gui = guiloader 
         
     def __initNetworkInterface(self):
         '''
@@ -88,18 +93,7 @@ class mrVisionModule(object):
         Generates protocol data package
         @param dataType: mrProtocol.PROTOCOL_TYPE_* data type
         '''
-        return mrProtocol.mrProtocolData( dataType, self.__visionHostName )
-    
-        
-    def __calibrate(self):
-        '''
-        Activates calibration mode
-        '''
-        data = self.__createProtocolData()
-        data.addDataItem( self.__visionModeTag, mrVisionData.VISION_MODE_CALIB) 
-        data.addDataItem( mrDataTags.VISION_CALIB_IMG_TAG, self.__visionCalibImg )
-        self.__socketManager.sendData(data)
-        mrLogger.log( "send calibration request", mrLogger.LOG_LEVEL['debug'] )              
+        return mrProtocol.mrProtocolData( dataType, self.__visionHostName )            
         
         
     def __dataRecieved(self, socket, data):
@@ -136,17 +130,28 @@ class mrVisionModule(object):
         '''
         processes image recognision
         '''
+        
+        
         mrLogger.log( "image processing started", mrLogger.LOG_LEVEL['info'] )
         while self.__mode != mrVisionData.VISION_MODE_TERMINATE:
             
             if self.__mode in mrVisionData.VISION_STREAMING_MODES:
                 # TO-DO: image processing
-                print "objects:", self.__visionRecognition.getObjects()
+                print "objects:"
             
-            elif self.__mode == mrVisionData.VISION_MODE_CALIB:
-                # TO-DO: calibration 
-                print "calibration"
-                self.__visionRecognition.calibrate()
+            elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_DIST:
+                # TO-DO: calibration  of distortion
+                print "calibration distortion"
+            
+            elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_TRANSF:
+                # To-DO: calibration of transformation
+                print "calibration transformation"
+                
+            elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_BG:
+                # To-DO: calibration of background
+                print "calibration background"
+                
+            sleep(1.0)
             
         mrLogger.log( "image processing stopped", mrLogger.LOG_LEVEL['info'] )
         self.__socketManager.stopSocket()

@@ -1,0 +1,44 @@
+# -----------------------------------------------------
+# 					mrVision Module
+# -----------------------------------------------------
+# version:	0.1a
+# author:	H. Eilers, M. Groth
+# date:		10/2013
+# -----------------------------------------------------
+#
+# -----------------------------------------------------
+#					DEPENDENCIES
+# -----------------------------------------------------
+
+mrVision module needs the following modules
+
+- python			(version 2.7)
+- pyxb 				(http://sourceforge.net/projects/pyxb/)
+- python-qt4
+- python-opencv
+
+
+# -----------------------------------------------------
+#					INSTALLATION
+# -----------------------------------------------------
+
+WINDOWS:
+1.	Download python and every package from the corresponding
+	website and install it.
+
+LINUX:
+1. 	Use apt-get to install python and modules
+		sudo apt-get install python python-qt4 python-opencv
+
+2.	Download pyxb from sourceforge, unpack it, open terminal
+	in pyxb folder and install it using
+		sudo python setup.py install
+		
+# -----------------------------------------------------
+#					USAGE
+# -----------------------------------------------------
+
+Start mrVision.py inside src/mrVision using follgowing
+command from root directory
+
+	python src/mrVision/mrVision.py

@@ -1,4 +1,4 @@
-from cv2 import VideoCapture, cvtColor, cv, findChessboardCorners, drawChessboardCorners, cornerSubPix, undistort, calibrateCamera, imread, imwrite
+from cv2 import VideoCapture, cvtColor, cv, findChessboardCorners, cornerSubPix, undistort, calibrateCamera, imread
 from cv2 import TERM_CRITERIA_COUNT, TERM_CRITERIA_EPS, COLOR_RGB2GRAY
 from os.path import isfile
 
