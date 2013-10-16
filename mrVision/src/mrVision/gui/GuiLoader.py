@@ -9,7 +9,7 @@ Created on 08.10.2012
 import os
 
 from PyQt4 import QtCore, QtGui
-from src.mrVision.gui.gui import Ui_frmMain
+from gui.visionGui import Ui_frmMain
 
 class GuiLoader(QtGui.QMainWindow):
     '''

@@ -1,2 +1,3 @@
 __all__ = ["mrVisionModule",
-           "mrVisionRecognition"]
+           "mrVisionRecognition"
+           "imageprocessing"]

@@ -8,8 +8,8 @@ Mixed-Reality Vision module
 
 from mrLib.config.mrConfigParser import mrConfigParser
 from mrLib.logging import mrLogger
-from src.mrVision.core.mrVisionModule import mrVisionModule
-from src.mrVision.gui.GuiLoader import GuiLoader
+from core.mrVisionModule import mrVisionModule
+from gui.GuiLoader import GuiLoader
 
 from PyQt4 import QtGui
 

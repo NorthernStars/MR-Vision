@@ -1,1 +1,2 @@
-__all__ = ["GuiLoader", "Ui_frmMain"]
+__all__ = ["GuiLoader",
+           "visionGui"]

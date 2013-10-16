@@ -2,13 +2,12 @@ from cv2 import VideoCapture, cvtColor, cv, findChessboardCorners, cornerSubPix,
 from cv2 import TERM_CRITERIA_COUNT, TERM_CRITERIA_EPS, COLOR_RGB2GRAY
 from os.path import isfile
 
-def openCam(camNum=0, vidW=160, vidH=120):
+def openCam(camNum=0):
 	'''
 	Returns VideoCapture object for camera
 	'''
 	if type(camNum) == int and camNum >= 0:
 		cam = VideoCapture(0)
-		print "init cam", camNum, " width", str(vidW)+"x"+str(vidH)
 		cam.set( cv.CV_CAP_PROP_FRAME_WIDTH, vidW )
 		cam.set( cv.CV_CAP_PROP_FRAME_HEIGHT, vidH )
 		return cam
@@ -19,7 +18,7 @@ def getImgFromCam(cam=None, grey=False):
 	'''
 	Grabs image from camera 
 	'''
-	if cam != None:
+	if cam != None & cam.isOpened():
 		retval, img = cam.read()
 		if retval:
 			if grey:
@@ -28,13 +27,13 @@ def getImgFromCam(cam=None, grey=False):
 	return None
 	
 	
-def getImgFromFile(fname=None, grey=False):
+def getImgFromFile(fname=None, gray=False):
 	'''
 	Grabs image from file
 	'''
 	if type(fname) == str and isfile(fname):
 		img = imread( fname, 1 )
-		if grey:
+		if gray:
 			img = cvtColor( img, COLOR_RGB2GRAY )
 		return img
 		
@@ -62,14 +61,12 @@ def findChessBoardPatternSize(img, xMax=10, yMax=10, xStart=3, yStart=3):
 	Finds maximum chessboard pattern size in image
 	'''
 	if xMax > 2 and yMax > 2 and xStart > 2 and yStart > 2:
-		patternX = xStart
-		patterny = yStart
 		patternSize = []
 		found = False
 			
 		# try every compination of pattern size
-		for x in range(3, xMax+1):
-			for y in range(3, yMax+1):
+		for x in range(xStart, xMax+1):
+			for y in range(yStart, yMax+1):
 				# check for pattern in image
 				if getChessBoardCorners( img, (x,y) )[0]:
 					# found pattern
@@ -90,7 +87,10 @@ def getCalibrationData(img, obj_points, img_points):
 	dist_coefs = None
 	if img != None and obj_points != None and img_points != None:
 		h, w = img.shape[:2]
-		rms, camera_matrix, dist_coefs, rvecs, tvecs = calibrateCamera( obj_points, img_points, (w, h) )
+		parameters = calibrateCamera( obj_points, img_points, (w, h) )
+		
+		if len(parameters) == 5:
+			return parameters[1], parameters[2]
 		
 	return camera_matrix, dist_coefs
 

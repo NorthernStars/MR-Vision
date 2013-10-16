@@ -12,7 +12,7 @@ from mrLib.logging import mrLogger
 
 from time import time, sleep
 from thread import start_new_thread
-from src.mrVision.gui.GuiLoader import GuiLoader
+from gui.GuiLoader import GuiLoader
 
 
 
@@ -153,5 +153,7 @@ class mrVisionModule(object):
                 
             sleep(1.0)
             
+        # exit program
         mrLogger.log( "image processing stopped", mrLogger.LOG_LEVEL['info'] )
         self.__socketManager.stopSocket()
+        exit()
