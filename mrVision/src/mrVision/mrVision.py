@@ -37,7 +37,7 @@ if __name__ == '__main__':
     
     # create gui app
     app = QtGui.QApplication(sys.argv)
-    guiloader = GuiLoader()
+    guiloader = GuiLoader(True)
     guiloader.show()
     
     # create vision module

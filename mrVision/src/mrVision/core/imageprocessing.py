@@ -1,6 +1,8 @@
 from cv2 import VideoCapture, cvtColor, findChessboardCorners, cornerSubPix, undistort, calibrateCamera, imread
 from cv2 import TERM_CRITERIA_COUNT, TERM_CRITERIA_EPS
 from cv2 import COLOR_RGB2GRAY
+
+from PyQt4.QtGui import QImage, QPixmap
 from os.path import isfile
 
 def openCam(camNum=0):
@@ -66,11 +68,9 @@ def findChessBoardPatternSize(img, xMax=10, yMax=10, xStart=3, yStart=3):
 		# try every compination of pattern size
 		for x in range(xStart, xMax+1):
 			for y in range(yStart, yMax+1):
-				print "checking", (x, y)
 				# check for pattern in image
 				if getChessBoardCorners( img, (x,y) )[0]:
 					# found pattern
-					print "\tfound"
 					found = True
 					patternSize.append( (x,y) )
 					
@@ -105,3 +105,15 @@ def undistortImg( img, camera_matrix, dist_coefs ):
 
 	return None
 
+
+def imageToPixmap(img=None):
+	'''
+	Converts image to pyqt pixmap
+	'''
+	# get image shape
+	w = img.shape[1]
+	h = img.shape[0]
+	
+	# convert image
+	qimg = QImage( img.data, w, h, QImage.Format_RGB888 )
+	return QPixmap.fromImage( qimg )

@@ -23,7 +23,7 @@ fname2 = "testimg/testpunkte.jpg"
 output = "testimg/finTestpunkte.jpg"
 
 # set findPattern = True to search for pattern
-findPattern = False
+findPattern = True
 
 # several data
 pattern_points = np.zeros( (np.prod(pattern_size), 3), np.float32 )

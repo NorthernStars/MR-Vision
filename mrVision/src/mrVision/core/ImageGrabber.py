@@ -7,17 +7,19 @@ from gui.GuiLoader import GuiLoader
 from sources.AbstractSourceGrabber import AbstractSourceGrabber
 from sources.CamGrabber import CamGrabber
 from sources.FileGrabber import FileGrabber
+from core.imageprocessing import imageToPixmap
 
-from PyQt4.QtGui import QImage, QPixmap, QGraphicsScene
+from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer
 from cv2 import cvtColor, COLOR_BGR2RGB, COLOR_GRAY2RGB, COLOR_HLS2RGB, COLOR_YUV2RGB  # @UnusedImport
 from numpy import ndarray
+
 
 class ImageGrabber(object):
     '''
     classdocs
     '''
-    __gui = GuiLoader(True)
+    __gui = GuiLoader()
     __sources = []
     __grabTimer = QTimer()
     __img = None
@@ -30,24 +32,24 @@ class ImageGrabber(object):
         '''
         Constructor
         '''
-        self.__gui = GuiLoader(True)
+        self.__gui = GuiLoader()
         
         if gui != None:
             self.__gui = gui
             self.__initGui()
             
-            # initiate scene
-            self.__gview = self.__gui.getObj("imgVideo")
-            self.__scene = QGraphicsScene()
-            self.__gview.setScene(self.__scene)
             
-            # initi timer
-            self.__grabTimer = QTimer()
+
             
     def __initGui(self):
         '''
         Initiates gui listeners
         '''
+        # initiate scene
+        self.__gview = self.__gui.getObj("imgVideo")
+        self.__scene = QGraphicsScene()
+        self.__gview.setScene(self.__scene)
+        
         # add combobox items
         cmb = self.__gui.getObj("cmbConversion")
         cmb.addItem("None")
@@ -111,18 +113,10 @@ class ImageGrabber(object):
         
         if type(img) == ndarray:
             # add image as new image
-            self.__img = img
-            
-            # get image shape
-            w = img.shape[1]
-            h = img.shape[0]
-            
-            # convert image
-            qimg = QImage( img.data, w, h, QImage.Format_RGB888 )
-            pixmap = QPixmap.fromImage( qimg )
+            self.__img = img           
             
             # show image
-            self.__scene.addPixmap(pixmap)
+            self.__scene.addPixmap( imageToPixmap(img) )
             self.__gview.show()
             
         else:
@@ -149,7 +143,6 @@ class ImageGrabber(object):
         
         cam = CamGrabber(source)
         self.__sources.append( cam )
-        print "added cam"
     
     def __addFileSource(self):
         '''

@@ -163,7 +163,7 @@
        <x>20</x>
        <y>10</y>
        <width>341</width>
-       <height>311</height>
+       <height>541</height>
       </rect>
      </property>
      <property name="title">
@@ -182,16 +182,16 @@
       <property name="geometry">
        <rect>
         <x>130</x>
-        <y>280</y>
+        <y>340</y>
         <width>87</width>
         <height>27</height>
        </rect>
       </property>
       <property name="text">
-       <string>Calibrate</string>
+       <string>&amp;Calibrate</string>
       </property>
      </widget>
-     <widget class="QGraphicsView" name="graphicsView">
+     <widget class="QGraphicsView" name="imgDistortion">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -201,6 +201,222 @@
        </rect>
       </property>
      </widget>
+     <widget class="QLineEdit" name="txtPatternXMax">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>440</y>
+        <width>41</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>20</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtPatternYMax">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>470</y>
+        <width>41</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>20</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lblPatternXMax">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>440</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pattern X max:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cmdFindPattern">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>510</y>
+        <width>131</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&amp;Find chess pattern</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lblPatternYMax">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>470</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pattern Y max:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtPatternXMin">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>440</y>
+        <width>41</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>3</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lblPatternXMin">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>440</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pattern X min:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtPatternYMin">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>470</y>
+        <width>41</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>3</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lblPatternYMin">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>470</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pattern Y min:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lblPatternY">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>280</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pattern Y:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtPatternY">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>280</y>
+        <width>41</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>3</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtPatternX">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>280</y>
+        <width>41</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>20</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lblPatternX">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>280</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pattern X:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="txtCalibrationFrames">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>310</y>
+        <width>41</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>10</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lblCalibrationFrames">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>310</y>
+        <width>251</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>No. of frames for calibration:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
     </widget>
     <widget class="QGroupBox" name="grbTransformation">
      <property name="geometry">
@@ -208,7 +424,7 @@
        <x>420</x>
        <y>10</y>
        <width>341</width>
-       <height>311</height>
+       <height>541</height>
       </rect>
      </property>
      <property name="title">
@@ -233,10 +449,10 @@
        </rect>
       </property>
       <property name="text">
-       <string>Calibrate</string>
+       <string>Calibra&amp;te</string>
       </property>
      </widget>
-     <widget class="QGraphicsView" name="graphicsView_2">
+     <widget class="QGraphicsView" name="imgTransformation">
       <property name="geometry">
        <rect>
         <x>10</x>

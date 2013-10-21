@@ -45,7 +45,7 @@ class GuiLoader(QtGui.QMainWindow):
         @param parent: Not needed yet
         '''
         # create gui
-        if parent == None:
+        if parent != None:
             self.showInterface()
     
     

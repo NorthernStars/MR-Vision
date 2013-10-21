@@ -17,3 +17,4 @@ fi
 
 echo "Compiling gui-file $gui_path to $gui_out."
 pyuic4 -o $gui_out $gui_path
+echo "finished"

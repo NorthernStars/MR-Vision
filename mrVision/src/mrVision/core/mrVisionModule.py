@@ -14,6 +14,7 @@ from time import time, sleep
 from thread import start_new_thread
 from gui.GuiLoader import GuiLoader
 from core.ImageGrabber import ImageGrabber
+from core.Distortion import Distortion
 
 
 
@@ -25,8 +26,10 @@ class mrVisionModule(object):
     __visionConfig = mrConfigParser()
     __visionHostName = "vision"
     __visionCalibImg = "img/calibration.jpg"
-    __gui = GuiLoader(True)
+    __gui = GuiLoader()
+    
     __imageGrabber = ImageGrabber()
+    __distortion = Distortion()
     
     __socketManager = None
     __mode = mrVisionData.VISION_MODE_CALIBRATE_DIST
@@ -59,6 +62,7 @@ class mrVisionModule(object):
         if guiloader != None:
             self.__gui = guiloader 
             self.__imageGrabber = ImageGrabber(self.__gui)
+            self.__distortion = Distortion(self.__gui)
         
     def __initNetworkInterface(self):
         '''
@@ -141,6 +145,9 @@ class mrVisionModule(object):
             
             # get image
             img = self.__imageGrabber.getImage()
+            
+            # set images
+            self.__distortion.setImg(img)
             
             if self.__mode in mrVisionData.VISION_STREAMING_MODES:
                 # TO-DO: image processing
