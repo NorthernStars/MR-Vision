@@ -3,6 +3,7 @@ from cv2 import TERM_CRITERIA_COUNT, TERM_CRITERIA_EPS
 from cv2 import COLOR_RGB2GRAY
 
 from PyQt4.QtGui import QImage, QPixmap
+from numpy import ndarray
 from os.path import isfile
 
 def openCam(camNum=0):
@@ -117,3 +118,34 @@ def imageToPixmap(img=None):
 	# convert image
 	qimg = QImage( img.data, w, h, QImage.Format_RGB888 )
 	return QPixmap.fromImage( qimg )
+
+def getImageSizeFromCorners(corners=[]):
+	'''
+	Searches in list of corners for image size (outer borders)
+	@return: [ (xmin, xmax), (ymin, ymax) ]
+	'''	
+	xmin = -1
+	xmax = -1
+	ymin = -1
+	ymax = -1
+	
+	if type(corners) == ndarray and len(corners) > 0:
+		xmin = corners[0][0][0]
+		xmax = corners[0][0][0]
+		ymin = corners[0][0][1]
+		ymax = corners[0][0][1]
+		
+		# sreach max and min
+		for c in corners:
+			if c[0][0] > xmax:
+				xmax = c[0][0]
+			if c[0][0] < xmin:
+				xmin = c[0][0]
+			if c[0][1] > ymax:
+				ymax = c[0][1]
+			if c[0][1] < ymin:
+				ymin = c[0][1]
+			
+		return [ (xmin, xmax), (ymin, ymax) ]
+	
+	return None

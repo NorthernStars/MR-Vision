@@ -146,21 +146,36 @@ class mrVisionModule(object):
             # get image
             img = self.__imageGrabber.getImage()
             
-            # set images
+            # set image to distortion module
             self.__distortion.setImg(img)
             
+            # undistort and crop image 
+            if self.__distortion.isCalibrated():
+                img = self.__distortion.undistortImage(img)
+                img = self.__distortion.cropImage(img)
+            
+            
+            
+            # STREAM IMAGES
             if self.__mode in mrVisionData.VISION_STREAMING_MODES:
                 # TO-DO: image processing
-                print "objects:"
+                if self.__imageGrabber.isActive():
+                    print "objects:"
             
+            # CALIBRATE CHESSBOARD
             elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_DIST:
-                # TO-DO: calibration  of distortion
-                
-                print "calibration distortion"
+                if not self.__distortion.isCalibrating():                              
+                    self.__distortion.calibrateCamera()                   
+                    while self.__distortion.isCalibrating():
+                        pass
+                    
+                self.__mode = mrVisionData.VISION_MODE_NONE
             
+            # CALIBRATE TRANSFORMATIONEN
             elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_TRANSF:
                 # To-DO: calibration of transformation
                 print "calibration transformation"
+                self.__mode = mrVisionData.VISION_MODE_NONE
                 
             sleep(1.0)
             

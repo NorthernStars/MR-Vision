@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Mon Oct 21 15:25:36 2013
+# Created: Mon Oct 21 18:12:23 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -73,7 +73,7 @@ class Ui_frmMain(object):
         self.grbUnfisheye.setCheckable(False)
         self.grbUnfisheye.setObjectName(_fromUtf8("grbUnfisheye"))
         self.cmdCalibrateDistortion = QtGui.QPushButton(self.grbUnfisheye)
-        self.cmdCalibrateDistortion.setGeometry(QtCore.QRect(130, 340, 87, 27))
+        self.cmdCalibrateDistortion.setGeometry(QtCore.QRect(130, 400, 87, 27))
         self.cmdCalibrateDistortion.setObjectName(_fromUtf8("cmdCalibrateDistortion"))
         self.imgDistortion = QtGui.QGraphicsView(self.grbUnfisheye)
         self.imgDistortion.setGeometry(QtCore.QRect(10, 30, 320, 240))
@@ -130,6 +130,20 @@ class Ui_frmMain(object):
         self.lblCalibrationFrames.setGeometry(QtCore.QRect(20, 310, 251, 21))
         self.lblCalibrationFrames.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.lblCalibrationFrames.setObjectName(_fromUtf8("lblCalibrationFrames"))
+        self.lblCalibrationSquareSize = QtGui.QLabel(self.grbUnfisheye)
+        self.lblCalibrationSquareSize.setGeometry(QtCore.QRect(20, 340, 251, 21))
+        self.lblCalibrationSquareSize.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lblCalibrationSquareSize.setObjectName(_fromUtf8("lblCalibrationSquareSize"))
+        self.txtCalibrationSquareSize = QtGui.QLineEdit(self.grbUnfisheye)
+        self.txtCalibrationSquareSize.setGeometry(QtCore.QRect(280, 340, 41, 27))
+        self.txtCalibrationSquareSize.setObjectName(_fromUtf8("txtCalibrationSquareSize"))
+        self.txtCalibrationBorders = QtGui.QLineEdit(self.grbUnfisheye)
+        self.txtCalibrationBorders.setGeometry(QtCore.QRect(280, 370, 41, 27))
+        self.txtCalibrationBorders.setObjectName(_fromUtf8("txtCalibrationBorders"))
+        self.lblCalibrationBorders = QtGui.QLabel(self.grbUnfisheye)
+        self.lblCalibrationBorders.setGeometry(QtCore.QRect(20, 370, 251, 21))
+        self.lblCalibrationBorders.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.lblCalibrationBorders.setObjectName(_fromUtf8("lblCalibrationBorders"))
         self.grbTransformation = QtGui.QGroupBox(self.tab_2)
         self.grbTransformation.setGeometry(QtCore.QRect(420, 10, 341, 541))
         self.grbTransformation.setAlignment(QtCore.Qt.AlignCenter)
@@ -170,11 +184,15 @@ class Ui_frmMain(object):
         self.txtPatternYMin.setText(_translate("frmMain", "3", None))
         self.lblPatternYMin.setText(_translate("frmMain", "Pattern Y min:", None))
         self.lblPatternY.setText(_translate("frmMain", "Pattern Y:", None))
-        self.txtPatternY.setText(_translate("frmMain", "3", None))
-        self.txtPatternX.setText(_translate("frmMain", "20", None))
+        self.txtPatternY.setText(_translate("frmMain", "8", None))
+        self.txtPatternX.setText(_translate("frmMain", "5", None))
         self.lblPatternX.setText(_translate("frmMain", "Pattern X:", None))
-        self.txtCalibrationFrames.setText(_translate("frmMain", "10", None))
+        self.txtCalibrationFrames.setText(_translate("frmMain", "2", None))
         self.lblCalibrationFrames.setText(_translate("frmMain", "No. of frames for calibration:", None))
+        self.lblCalibrationSquareSize.setText(_translate("frmMain", "Square size:", None))
+        self.txtCalibrationSquareSize.setText(_translate("frmMain", "1.0", None))
+        self.txtCalibrationBorders.setText(_translate("frmMain", "10", None))
+        self.lblCalibrationBorders.setText(_translate("frmMain", "Additional borders [%]", None))
         self.grbTransformation.setTitle(_translate("frmMain", "Transformation", None))
         self.cmdCCalibrateTransformation.setText(_translate("frmMain", "Calibra&te", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("frmMain", "Calibration", None))

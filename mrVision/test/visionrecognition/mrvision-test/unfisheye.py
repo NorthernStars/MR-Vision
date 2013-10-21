@@ -96,15 +96,16 @@ while not ex and (usePic or cam):
 			
 			# add img and obj points
 			img_points.append( corners.reshape(-1, 2) )
-        		obj_points.append( pattern_points )
+        	obj_points.append( pattern_points )
         		
-        		frames += 1
+        	frames += 1
         		
-        		# get calibration values
-        		camera_matrix, dist_coefs = getCalibrationData(img, obj_points, img_points )
-			
-		else:
+        	# get calibration values
+        	camera_matrix, dist_coefs = getCalibrationData(img, obj_points, img_points )
+        
+        else:
 			cv2.destroyWindow( "chessboard" )
+		
 	else:
 		ex = True
 		

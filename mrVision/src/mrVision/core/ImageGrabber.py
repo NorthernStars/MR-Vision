@@ -38,9 +38,6 @@ class ImageGrabber(object):
             self.__gui = gui
             self.__initGui()
             
-            
-
-            
     def __initGui(self):
         '''
         Initiates gui listeners
@@ -63,10 +60,19 @@ class ImageGrabber(object):
         self.__gui.connect( "cmdStopVideo", "clicked()", self.stopVideo )
         self.__gui.connect( "cmdAddSource", "clicked()", self.__addCamSource )
         
+    def isActive(self):
+        '''
+        @return: True if image grabbing is active
+        '''
+        return self.__grabTimer.isActive()
+        
     def startVideo(self):
         '''
         Starts grabbing images
         '''
+        if self.__grabTimer.isActive():
+            self.__grabTimer.stop()
+        
         self.__grabTimer = QTimer()
         self.__grabTimer.timeout.connect( self.__grabImage )
         self.__grabTimer.start(0)
@@ -75,9 +81,10 @@ class ImageGrabber(object):
         '''
         Stops grabbing video
         '''
-        self.__grabTimer.stop()
-        self.__scene.clear()
-        self.__gview.show()
+        if self.__grabTimer.isActive():
+            self.__grabTimer.stop()
+            self.__scene.clear()
+            self.__gview.show()
     
     def getImage(self):
         '''
@@ -85,6 +92,15 @@ class ImageGrabber(object):
         @return: Image
         '''
         return self.__img
+    
+    def __showImage(self):
+        '''
+        Shows image on graphics view
+        '''
+        if self.__img != None:
+            self.__scene.clear()
+            self.__scene.addPixmap( imageToPixmap(self.__img) )
+            self.__gview.show()
     
     def __grabImage(self):
         '''
@@ -107,20 +123,16 @@ class ImageGrabber(object):
                 img = cvtColor(img, convert)
             except:
                 img = None
-        
-        # clear scene
-        self.__scene.clear()
-        
+
+        # show results
         if type(img) == ndarray:
             # add image as new image
-            self.__img = img           
-            
-            # show image
-            self.__scene.addPixmap( imageToPixmap(img) )
-            self.__gview.show()
+            self.__img = img
+            self.__showImage()
             
         else:
             # show message
+            self.__scene.clear()
             self.__scene.addText("NO VIDEO")
         
             
