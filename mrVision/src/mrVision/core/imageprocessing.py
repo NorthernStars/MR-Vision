@@ -1,5 +1,6 @@
-from cv2 import VideoCapture, cvtColor, cv, findChessboardCorners, cornerSubPix, undistort, calibrateCamera, imread
-from cv2 import TERM_CRITERIA_COUNT, TERM_CRITERIA_EPS, COLOR_RGB2GRAY
+from cv2 import VideoCapture, cvtColor, findChessboardCorners, cornerSubPix, undistort, calibrateCamera, imread
+from cv2 import TERM_CRITERIA_COUNT, TERM_CRITERIA_EPS
+from cv2 import COLOR_RGB2GRAY
 from os.path import isfile
 
 def openCam(camNum=0):
@@ -8,8 +9,6 @@ def openCam(camNum=0):
 	'''
 	if type(camNum) == int and camNum >= 0:
 		cam = VideoCapture(0)
-		cam.set( cv.CV_CAP_PROP_FRAME_WIDTH, vidW )
-		cam.set( cv.CV_CAP_PROP_FRAME_HEIGHT, vidH )
 		return cam
 	return False
 
@@ -18,7 +17,7 @@ def getImgFromCam(cam=None, grey=False):
 	'''
 	Grabs image from camera 
 	'''
-	if cam != None & cam.isOpened():
+	if (cam != None) and cam.isOpened():
 		retval, img = cam.read()
 		if retval:
 			if grey:
@@ -67,9 +66,11 @@ def findChessBoardPatternSize(img, xMax=10, yMax=10, xStart=3, yStart=3):
 		# try every compination of pattern size
 		for x in range(xStart, xMax+1):
 			for y in range(yStart, yMax+1):
+				print "checking", (x, y)
 				# check for pattern in image
 				if getChessBoardCorners( img, (x,y) )[0]:
 					# found pattern
+					print "\tfound"
 					found = True
 					patternSize.append( (x,y) )
 					

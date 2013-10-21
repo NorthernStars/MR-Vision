@@ -3,7 +3,7 @@
 # check for dev-tools
 dev_tool=pyqt4-dev-tools
 gui_path=mainGUI.ui
-gui_out=gui.py
+gui_out=visionGui.py
 
 PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $dev_tool | grep "install ok installed")
 

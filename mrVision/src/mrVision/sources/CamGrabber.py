@@ -43,13 +43,14 @@ class CamGrabber(AbstractSourceGrabber):
         '''
         Returns image from camera
         '''
-        img = getImgFromCam(self.__cam, self._gray)
-        if img != None:            
-            # resize image
-            if self._resize != None:
-                img = resize(img, self._resize)
-            
-            return img
+        if self.__cam != None:
+            img = getImgFromCam(self.__cam, self._gray)
+            if img != None:            
+                # resize image
+                if self._resize != None:
+                    img = resize(img, self._resize)
+                
+                return img
         
         return False
     

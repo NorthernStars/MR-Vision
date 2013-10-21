@@ -1,10 +1,11 @@
 import numpy as np
 import cv2
 from time import sleep
-from imageprocessing import *
+from core.imageprocessing import *
 
 
 # pattern and square dimension
+#pattern_size = (9, 12)
 #pattern_size = (7, 7) # tisch
 pattern_size = (5, 8) # testmuster
 square_size = 1.0
@@ -15,9 +16,11 @@ vidH = 768
 
 # set usePic = True to use pictures instead of cam
 usePic = False
-fname = "ImageRGB2.png"
-#fname = "testschach.jpg"
-retval = True
+#fname = "ImageRGB2.png"
+fname = "testimg/chess10.jpg"
+#fname2 = "testimg/transform.jpg"
+fname2 = "testimg/testpunkte.jpg"
+output = "testimg/finTestpunkte.jpg"
 
 # set findPattern = True to search for pattern
 findPattern = False
@@ -38,7 +41,7 @@ ex = False
 
 # set and open capture device
 if not usePic:
-	cam = openCam(0, vidW, vidH)
+	cam = openCam(0)
 	
 # find pattern size
 
@@ -53,7 +56,7 @@ if findPattern:
 	if img != None:	
 		
 		print "searching for chessboard pattern"
-		pattern = findChessBoardPatternSize( img, 20, 20, 5, 5 )
+		pattern = findChessBoardPatternSize( img, 25, 25, 3, 3 )
 	
 		if len(pattern) > 0:
 			pattern_size = pattern[-1]
@@ -75,9 +78,6 @@ while not ex and (usePic or cam):
 		img = getImgFromCam(cam)
 	else:
 		img = getImgFromFile(fname)
-		
-	cv2.imwrite("img.jpg", img)
-	img = getImgFromFile("img.jpg")
 	
 	if img != None:
 		# show source
@@ -97,9 +97,6 @@ while not ex and (usePic or cam):
 			# add img and obj points
 			img_points.append( corners.reshape(-1, 2) )
         		obj_points.append( pattern_points )
-        		
-        		#img_points =  [corners]
-        		#obj_points = [pattern_points]
         		
         		frames += 1
         		
@@ -135,7 +132,7 @@ if camera_matrix != None:
 		if not usePic:
 			img = getImgFromCam(cam)
 		else:
-			img = getImgFromFile(fname)
+			img = getImgFromFile(fname2)
 	
 		if img != None:
 			# show source image
@@ -146,6 +143,7 @@ if camera_matrix != None:
 		
 			# show image
 			cv2.imshow( "undistorted", dst )
+			cv2.imwrite(output, dst)
 		else:
 			ex = True
 	

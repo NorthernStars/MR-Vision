@@ -9,7 +9,7 @@ Created on 08.10.2012
 import os
 
 from PyQt4 import QtCore, QtGui
-from gui.visionGui import Ui_frmMain
+from visionGui import Ui_frmMain
 
 class GuiLoader(QtGui.QMainWindow):
     '''
@@ -46,7 +46,7 @@ class GuiLoader(QtGui.QMainWindow):
         '''
         # create gui
         if parent == None:
-            self.showInterface(parent)
+            self.showInterface()
     
     
     

@@ -13,6 +13,7 @@ from mrLib.logging import mrLogger
 from time import time, sleep
 from thread import start_new_thread
 from gui.GuiLoader import GuiLoader
+from core.ImageGrabber import ImageGrabber
 
 
 
@@ -25,6 +26,7 @@ class mrVisionModule(object):
     __visionHostName = "vision"
     __visionCalibImg = "img/calibration.jpg"
     __gui = GuiLoader(True)
+    __imageGrabber = ImageGrabber()
     
     __socketManager = None
     __mode = mrVisionData.VISION_MODE_CALIBRATE_DIST
@@ -51,10 +53,12 @@ class mrVisionModule(object):
         # start image processing
         if ret:
             start_new_thread( self.__processImage, () )
+            pass
         
         # start gui
         if guiloader != None:
             self.__gui = guiloader 
+            self.__imageGrabber = ImageGrabber(self.__gui)
         
     def __initNetworkInterface(self):
         '''
@@ -135,21 +139,21 @@ class mrVisionModule(object):
         mrLogger.log( "image processing started", mrLogger.LOG_LEVEL['info'] )
         while self.__mode != mrVisionData.VISION_MODE_TERMINATE:
             
+            # get image
+            img = self.__imageGrabber.getImage()
+            
             if self.__mode in mrVisionData.VISION_STREAMING_MODES:
                 # TO-DO: image processing
                 print "objects:"
             
             elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_DIST:
                 # TO-DO: calibration  of distortion
+                
                 print "calibration distortion"
             
             elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_TRANSF:
                 # To-DO: calibration of transformation
                 print "calibration transformation"
-                
-            elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_BG:
-                # To-DO: calibration of background
-                print "calibration background"
                 
             sleep(1.0)
             
