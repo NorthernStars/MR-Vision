@@ -4,7 +4,7 @@ Created on 22.10.2013
 @author: northernstars
 '''
 from gui.GuiLoader import GuiLoader
-
+from core.ImageGrabber import ImageGrabber
 from core.imageprocessing import imageToPixmap
 
 from PyQt4.QtGui import QGraphicsScene
@@ -17,24 +17,31 @@ class Recognition(object):
     classdocs
     '''
     __gui = GuiLoader()
+    __imageGrabber = ImageGrabber()
+    
     __img = None
     __imgScene = None
     __imgCounter = 0
     
-    __recognize = False
+    __isRecognizing = False
     __objs = []
     
     __sceneImgTimer = QTimer()
 
-    def __init__(self, gui=None):
+    def __init__(self, gui=None, imageGrabber=None):
         '''
         Constructor
         '''        
-        self.__gui = GuiLoader()        
+        self.__gui = GuiLoader()
+        self.__imageGrabber = ImageGrabber()
+        self.__isRecognizing = False        
         
         if gui != None:
             self.__gui = gui
             self.__initGui()
+            
+        if imageGrabber != None:
+            self.__imageGrabber = imageGrabber
         
     def __initGui(self):
         '''
@@ -44,6 +51,10 @@ class Recognition(object):
         self.__gview = self.__gui.getObj("imgRecognition")
         self.__scene = QGraphicsScene()
         self.__gview.setScene(self.__scene)
+        
+        # create listeners
+        self.__gui.connect( "cmdStartRecognition", "clicked()", self.startRecognition )
+        self.__gui.connect( "cmdStopRecognition", "clicked()", self.stopRecognition )
         
         # start timer
         self.__sceneImgTimer = QTimer()
@@ -63,20 +74,20 @@ class Recognition(object):
         '''
         Starts image recognition   
         '''
-        self.__recognize = True
+        self.__isRecognizing = True
         start_new_thread( self.__recognize, () )
     
     def stopRecognition(self):
         '''
         Starts image recognition   
         '''
-        self.__recognize = False
+        self.__isRecognizing = False
         
     def isRecognizing(self):
         '''
         @return: True if module is currently recognizing images
         '''
-        return self.__recognize
+        return self.__isRecognizing
     
     def getVisionObjects(self):
         '''
@@ -105,7 +116,7 @@ class Recognition(object):
         Run in background
         '''
         lastImg = self.__imgCounter
-        while self.__recognize:
+        while self.__isRecognizing:
             if self.__imgCounter != lastImg:
                 img = self.__img
                 
@@ -114,6 +125,7 @@ class Recognition(object):
                                 PUT ALGORITHM HERE
                 ------------------------------------------------------------
                 '''
+                print "recognizing..."
                 
                 self.__imgScene = img
                 pass

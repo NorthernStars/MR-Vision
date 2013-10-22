@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Tue Oct 22 14:03:10 2013
+# Created: Tue Oct 22 15:49:57 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -169,6 +169,12 @@ class Ui_frmMain(object):
         self.txtCalibrationBorders = QtGui.QLineEdit(self.chkCropImg)
         self.txtCalibrationBorders.setGeometry(QtCore.QRect(240, 40, 41, 27))
         self.txtCalibrationBorders.setObjectName(_fromUtf8("txtCalibrationBorders"))
+        self.cmdLoadDistortion = QtGui.QPushButton(self.grbUnfisheye)
+        self.cmdLoadDistortion.setGeometry(QtCore.QRect(590, 230, 87, 27))
+        self.cmdLoadDistortion.setObjectName(_fromUtf8("cmdLoadDistortion"))
+        self.cmdSaveDistortion = QtGui.QPushButton(self.grbUnfisheye)
+        self.cmdSaveDistortion.setGeometry(QtCore.QRect(590, 200, 87, 27))
+        self.cmdSaveDistortion.setObjectName(_fromUtf8("cmdSaveDistortion"))
         self.tabWidget.addTab(self.tabDistortion, _fromUtf8(""))
         self.tabSettings = QtGui.QWidget()
         self.tabSettings.setObjectName(_fromUtf8("tabSettings"))
@@ -199,6 +205,9 @@ class Ui_frmMain(object):
         self.imgRecognition = QtGui.QGraphicsView(self.grbRecognition)
         self.imgRecognition.setGeometry(QtCore.QRect(10, 20, 480, 360))
         self.imgRecognition.setObjectName(_fromUtf8("imgRecognition"))
+        self.cmdStopRecognition = QtGui.QPushButton(self.grbRecognition)
+        self.cmdStopRecognition.setGeometry(QtCore.QRect(600, 240, 87, 27))
+        self.cmdStopRecognition.setObjectName(_fromUtf8("cmdStopRecognition"))
         self.tabWidget.addTab(self.tabRecognition, _fromUtf8(""))
         self.lblStatus = QtGui.QLabel(frmMain)
         self.lblStatus.setGeometry(QtCore.QRect(0, 596, 791, 21))
@@ -249,11 +258,14 @@ class Ui_frmMain(object):
         self.chkCropConvBefore.setText(_translate("frmMain", "Convert from BGR to RGB before crop", None))
         self.lblCalibrationBorders.setText(_translate("frmMain", "Additional borders [%]", None))
         self.txtCalibrationBorders.setText(_translate("frmMain", "10", None))
+        self.cmdLoadDistortion.setText(_translate("frmMain", "&Load", None))
+        self.cmdSaveDistortion.setText(_translate("frmMain", "&Save", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabDistortion), _translate("frmMain", "Distortion", None))
         self.grbTransformation.setTitle(_translate("frmMain", "Transformation", None))
         self.cmdCalibrateTransformation.setText(_translate("frmMain", "Calibra&te", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSettings), _translate("frmMain", "Transformation", None))
         self.grbRecognition.setTitle(_translate("frmMain", "Object Recognition", None))
         self.cmdStartRecognition.setText(_translate("frmMain", "&Start", None))
+        self.cmdStopRecognition.setText(_translate("frmMain", "&Start", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabRecognition), _translate("frmMain", "Object Recognition", None))
 

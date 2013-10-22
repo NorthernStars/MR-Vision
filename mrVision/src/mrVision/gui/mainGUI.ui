@@ -575,6 +575,32 @@
        </property>
       </widget>
      </widget>
+     <widget class="QPushButton" name="cmdLoadDistortion">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>230</y>
+        <width>87</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&amp;Load</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cmdSaveDistortion">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>200</y>
+        <width>87</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&amp;Save</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="tabSettings">
@@ -676,6 +702,19 @@
         <width>480</width>
         <height>360</height>
        </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cmdStopRecognition">
+      <property name="geometry">
+       <rect>
+        <x>600</x>
+        <y>240</y>
+        <width>87</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&amp;Start</string>
       </property>
      </widget>
     </widget>

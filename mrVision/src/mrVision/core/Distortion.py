@@ -4,6 +4,7 @@ Created on 21.10.2013
 @author: northernstars
 '''
 from gui.GuiLoader import GuiLoader
+from core.ImageGrabber import ImageGrabber
 from core.imageprocessing import findChessBoardPatternSize, imageToPixmap, getChessBoardCorners
 from core.imageprocessing import getCalibrationData, undistortImg, getImageSizeFromCorners
 
@@ -13,6 +14,8 @@ from cv2 import drawChessboardCorners, cvtColor, COLOR_BGR2RGB
 from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
 from thread import start_new_thread
+from copy import copy
+from cPickle import dump, load
 
 
 
@@ -22,9 +25,11 @@ class Distortion(object):
     classdocs
     '''
     __gui = GuiLoader()
+    __imageGrabber = ImageGrabber()
+    
     __img = None
     __imgScene = None
-    __imgCounter = 0
+    __imgCounter = 0    
     
     __scene = None
     __gview = None
@@ -38,17 +43,21 @@ class Distortion(object):
     __calibrating = False
 
 
-    def __init__(self, gui=None):
+    def __init__(self, gui=None, imageGrabber=None):
         '''
         Constructor
         '''        
-        self.__gui = GuiLoader()        
+        self.__gui = GuiLoader()  
+        self.__imageGrabber = ImageGrabber()
         self.__calibrated = False
         self.__calibrating = False
         
         if gui != None:
             self.__gui = gui
             self.__initGui()
+            
+        if imageGrabber != None:
+            self.__imageGrabber = imageGrabber
         
     def __initGui(self):
         '''
@@ -61,7 +70,9 @@ class Distortion(object):
         
         # create listeners
         self.__gui.connect( "cmdFindPattern", "clicked()", self.findChessBoardPattern )
-        self.__gui.connect( "cmdCalibrateDistortion", "clicked()", self.calibrateCamera )  
+        self.__gui.connect( "cmdCalibrateDistortion", "clicked()", self.calibrateCamera )
+        self.__gui.connect( "cmdSaveDistortion", "clicked()", self.__saveConfiguration )
+        self.__gui.connect( "cmdLoadDistortion", "clicked()", self.__loadConfiguration )
         
         # start timer
         self.__sceneImgTimer = QTimer()
@@ -295,4 +306,46 @@ class Distortion(object):
         if self.__camera_matrix != None and self.__dist_coefs != None and img != None:
             return undistortImg( img, self.__camera_matrix, self.__dist_coefs )
         return img
+    
+    def __loadConfiguration(self):
+        '''
+        Loads configuration
+        '''
+        self.__imageGrabber.stopVideo()
+        options = copy(self.__gui.dialogOptionsDef)
+        options['filetypes'] = "mrVision Configuration files (*cfg *mr)"
+        src = str( self.__gui.dialog(options) )
+        
+        if len(src) > 0:
+            # load file
+            data = load( open(src, "rb") )
+            
+            if 'camera_matrix' in data:
+                self.__camera_matrix = data['camera_matrix']
+            if 'dist_coefs' in data:
+                self.__dist_coefs = data['dist_coefs']
+            if 'corners' in data:
+                self.__corners = data['corners']
+            if 'calibrated' in data:
+                self.__calibrated = data['calibrated']
+            
+            self.__gui.status("Configuration loaded.")
+            
+                
+    def __saveConfiguration(self):
+        '''
+        Saves configuration
+        '''
+        self.__imageGrabber.stopVideo()
+        options = copy(self.__gui.dialogOptionsDef)
+        options['type'] = self.__gui.dialogTypes['FileSave']
+        options['title'] = "Save configuration"
+        options['filetypes'] = "Configuration (*cfg *mr)"
+        src = str( self.__gui.dialog(options) )
+        
+        if len(src) > 0:
+            # save data to file     
+            data = {'camera_matrix': self.__camera_matrix, 'dist_coefs': self.__dist_coefs, 'corners': self.__corners, 'calibrated': self.__calibrated}
+            dump( data, open(src, "wb") )
+            self.__gui.status("Configuration saved to: " + src)
             

@@ -67,9 +67,9 @@ class mrVisionModule(object):
         if guiloader != None:
             self.__gui = guiloader 
             self.__imageGrabber = ImageGrabber(self.__gui)
-            self.__distortion = Distortion(self.__gui)
-            self.__transformation = Transformation(self.__gui)
-            self.__recognition = Recognition(self.__gui)
+            self.__distortion = Distortion(self.__gui, self.__imageGrabber)
+            self.__transformation = Transformation(self.__gui, self.__imageGrabber)
+            self.__recognition = Recognition(self.__gui, self.__imageGrabber)
             
             self.__initGui()
             

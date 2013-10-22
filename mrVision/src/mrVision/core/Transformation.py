@@ -4,7 +4,7 @@ Created on 22.10.2013
 @author: northernstars
 '''
 from gui.GuiLoader import GuiLoader
-
+from core.ImageGrabber import ImageGrabber
 from core.imageprocessing import imageToPixmap
 
 from PyQt4.QtGui import QGraphicsScene
@@ -16,6 +16,8 @@ class Transformation(object):
     classdocs
     '''
     __gui = GuiLoader()
+    __imageGrabber = ImageGrabber()
+    
     __img = None
     __imgScene = None
     __imgCounter = 0
@@ -23,17 +25,21 @@ class Transformation(object):
     __calibrated = False
     __calibrating = False
 
-    def __init__(self, gui=None):
+    def __init__(self, gui=None, imageGrabber=None):
         '''
         Constructor
         '''        
-        self.__gui = GuiLoader()        
+        self.__gui = GuiLoader()
+        self.__imageGrabber = ImageGrabber()        
         self.__calibrated = False
         self.__calibrating = False
         
         if gui != None:
             self.__gui = gui
             self.__initGui()
+            
+        if imageGrabber != None:
+            self.__imageGrabber = imageGrabber
         
     def __initGui(self):
         '''
@@ -43,6 +49,9 @@ class Transformation(object):
         self.__gview = self.__gui.getObj("imgTransformation")
         self.__scene = QGraphicsScene()
         self.__gview.setScene(self.__scene)
+        
+        # create listeners
+        self.__gui.connect( "cmdCalibrateTransformation", "clicked()", self.__calibrateTransformation )
         
         # start timer
         self.__sceneImgTimer = QTimer()
@@ -87,6 +96,8 @@ class Transformation(object):
                         PUT ALGORITHM HERE
         ------------------------------------------------------------
         '''
+        
+        print "calculating transformation..."
         
         self.__gui.status("Calibration finished.")
         pass

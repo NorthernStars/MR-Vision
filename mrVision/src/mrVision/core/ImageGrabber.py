@@ -13,6 +13,7 @@ from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
 from cv2 import cvtColor, COLOR_BGR2RGB, COLOR_GRAY2RGB, COLOR_HLS2RGB, COLOR_YUV2RGB  # @UnusedImport
 from numpy import ndarray
+from copy import copy
 
 
 class ImageGrabber(object):
@@ -221,7 +222,7 @@ class ImageGrabber(object):
         Adds file as source
         '''
         self.stopVideo()
-        options = self.__gui.dialogOptionsDef
+        options = copy(self.__gui.dialogOptionsDef)
         options['filetypes'] = "Images (*.jpg *jpeg *gif *png *bmp *tif)"
         source = str(self.__gui.dialog(options))
         
