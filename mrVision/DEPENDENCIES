@@ -38,7 +38,7 @@ LINUX:
 #					USAGE
 # -----------------------------------------------------
 
-Start mrVision.py inside src/mrVision using follgowing
+Start mrVision.py inside src/mrVision using following
 command from root directory
 
 	python src/mrVision/mrVision.py

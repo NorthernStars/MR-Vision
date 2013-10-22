@@ -12,13 +12,12 @@ from core.mrVisionModule import mrVisionModule
 from gui.GuiLoader import GuiLoader
 
 from PyQt4 import QtGui
-
 import os, sys
 
 
 if __name__ == '__main__':
     
-    ''' set current working padth '''
+    ''' set current working path '''
     path = os.path.dirname(sys.argv[0])
     if not path:
         path = str(os.getcwd())
