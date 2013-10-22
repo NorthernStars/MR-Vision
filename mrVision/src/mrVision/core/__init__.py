@@ -1,4 +1,7 @@
 __all__ = ["mrVisionModule",
            "mrVisionRecognition"
            "imageprocessing",
-           "ImageGrabber"]
+           "ImageGrabber",
+           "Distortion",
+           "Transformation",
+           "Recognition"]

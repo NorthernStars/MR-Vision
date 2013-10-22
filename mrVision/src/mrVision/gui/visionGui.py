@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Tue Oct 22 12:48:03 2013
+# Created: Tue Oct 22 14:03:10 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,7 +89,7 @@ class Ui_frmMain(object):
         self.cmdCalibrateDistortion.setGeometry(QtCore.QRect(590, 150, 87, 27))
         self.cmdCalibrateDistortion.setObjectName(_fromUtf8("cmdCalibrateDistortion"))
         self.imgDistortion = QtGui.QGraphicsView(self.grbUnfisheye)
-        self.imgDistortion.setGeometry(QtCore.QRect(0, 30, 481, 361))
+        self.imgDistortion.setGeometry(QtCore.QRect(0, 30, 480, 360))
         self.imgDistortion.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.imgDistortion.setObjectName(_fromUtf8("imgDistortion"))
         self.lblPatternY = QtGui.QLabel(self.grbUnfisheye)
@@ -178,15 +178,27 @@ class Ui_frmMain(object):
         self.grbTransformation.setFlat(False)
         self.grbTransformation.setCheckable(False)
         self.grbTransformation.setObjectName(_fromUtf8("grbTransformation"))
-        self.cmdCCalibrateTransformation = QtGui.QPushButton(self.grbTransformation)
-        self.cmdCCalibrateTransformation.setGeometry(QtCore.QRect(330, 330, 87, 27))
-        self.cmdCCalibrateTransformation.setObjectName(_fromUtf8("cmdCCalibrateTransformation"))
+        self.cmdCalibrateTransformation = QtGui.QPushButton(self.grbTransformation)
+        self.cmdCalibrateTransformation.setGeometry(QtCore.QRect(600, 210, 87, 27))
+        self.cmdCalibrateTransformation.setObjectName(_fromUtf8("cmdCalibrateTransformation"))
         self.imgTransformation = QtGui.QGraphicsView(self.grbTransformation)
-        self.imgTransformation.setGeometry(QtCore.QRect(150, 30, 451, 291))
+        self.imgTransformation.setGeometry(QtCore.QRect(10, 20, 480, 360))
         self.imgTransformation.setObjectName(_fromUtf8("imgTransformation"))
         self.tabWidget.addTab(self.tabSettings, _fromUtf8(""))
         self.tabRecognition = QtGui.QWidget()
         self.tabRecognition.setObjectName(_fromUtf8("tabRecognition"))
+        self.grbRecognition = QtGui.QGroupBox(self.tabRecognition)
+        self.grbRecognition.setGeometry(QtCore.QRect(10, 0, 771, 541))
+        self.grbRecognition.setAlignment(QtCore.Qt.AlignCenter)
+        self.grbRecognition.setFlat(False)
+        self.grbRecognition.setCheckable(False)
+        self.grbRecognition.setObjectName(_fromUtf8("grbRecognition"))
+        self.cmdStartRecognition = QtGui.QPushButton(self.grbRecognition)
+        self.cmdStartRecognition.setGeometry(QtCore.QRect(600, 210, 87, 27))
+        self.cmdStartRecognition.setObjectName(_fromUtf8("cmdStartRecognition"))
+        self.imgRecognition = QtGui.QGraphicsView(self.grbRecognition)
+        self.imgRecognition.setGeometry(QtCore.QRect(10, 20, 480, 360))
+        self.imgRecognition.setObjectName(_fromUtf8("imgRecognition"))
         self.tabWidget.addTab(self.tabRecognition, _fromUtf8(""))
         self.lblStatus = QtGui.QLabel(frmMain)
         self.lblStatus.setGeometry(QtCore.QRect(0, 596, 791, 21))
@@ -239,7 +251,9 @@ class Ui_frmMain(object):
         self.txtCalibrationBorders.setText(_translate("frmMain", "10", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabDistortion), _translate("frmMain", "Distortion", None))
         self.grbTransformation.setTitle(_translate("frmMain", "Transformation", None))
-        self.cmdCCalibrateTransformation.setText(_translate("frmMain", "Calibra&te", None))
+        self.cmdCalibrateTransformation.setText(_translate("frmMain", "Calibra&te", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSettings), _translate("frmMain", "Transformation", None))
+        self.grbRecognition.setTitle(_translate("frmMain", "Object Recognition", None))
+        self.cmdStartRecognition.setText(_translate("frmMain", "&Start", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabRecognition), _translate("frmMain", "Object Recognition", None))
 

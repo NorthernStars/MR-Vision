@@ -16,6 +16,8 @@ from subprocess import call
 from gui.GuiLoader import GuiLoader
 from core.ImageGrabber import ImageGrabber
 from core.Distortion import Distortion
+from core.Transformation import Transformation
+from core.Recognition import Recognition
 
 
 
@@ -31,6 +33,8 @@ class mrVisionModule(object):
     
     __imageGrabber = ImageGrabber()
     __distortion = Distortion()
+    __transformation = Transformation()
+    __recognition = Recognition()
     
     __socketManager = None
     __mode = mrVisionData.VISION_MODE_CALIBRATE_DIST
@@ -64,6 +68,9 @@ class mrVisionModule(object):
             self.__gui = guiloader 
             self.__imageGrabber = ImageGrabber(self.__gui)
             self.__distortion = Distortion(self.__gui)
+            self.__transformation = Transformation(self.__gui)
+            self.__recognition = Recognition(self.__gui)
+            
             self.__initGui()
             
     def __initGui(self):
@@ -161,21 +168,26 @@ class mrVisionModule(object):
             # get image
             img = self.__imageGrabber.getImage()
             
-            # set image to distortion module
+            # sets image to distortion module
             self.__distortion.setImg(img)
             
             # undistort and crop image 
             if self.__distortion.isCalibrated():
                 img = self.__distortion.undistortImage(img)
                 img = self.__distortion.cropImage(img)
-            
+                
+            # sets image to transformation and recognition module
+            self.__transformation.setImg(img)
+            self.__recognition.setImg(img)
+           
             
             
             # STREAM IMAGES
             if self.__mode in mrVisionData.VISION_STREAMING_MODES:
                 # TO-DO: image processing
                 if self.__imageGrabber.isActive():
-                    print "objects:"
+                    objs = self.__recognition.getVisionObjects()
+                    print "objects:", objs
             
             # CALIBRATE CHESSBOARD
             elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_DIST:
@@ -189,10 +201,14 @@ class mrVisionModule(object):
             # CALIBRATE TRANSFORMATIONEN
             elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_TRANSF:
                 # To-DO: calibration of transformation
-                print "calibration transformation"
+                if not self.__transformation.isCalibrating():
+                    self.__transformation.startCalibration()
+                while self.__transformation.isCalibrating():
+                    pass
+                
                 self.__mode = mrVisionData.VISION_MODE_NONE
                 
-            sleep(1.0)
+            sleep(0.5)
             
         # exit program
         mrLogger.log( "image processing stopped", mrLogger.LOG_LEVEL['info'] )

@@ -42,7 +42,9 @@ class Distortion(object):
         '''
         Constructor
         '''        
-        self.__gui = GuiLoader()
+        self.__gui = GuiLoader()        
+        self.__calibrated = False
+        self.__calibrating = False
         
         if gui != None:
             self.__gui = gui
@@ -98,8 +100,6 @@ class Distortion(object):
         self.__gview.show()
         
         # start search
-        #timer = QTimer()
-        #timer.singleShot(1, self.__searchChessBoardPattern )
         start_new_thread( self.__searchChessBoardPattern, () )
         
     def __searchChessBoardPattern(self):
@@ -149,8 +149,11 @@ class Distortion(object):
             
             # calculate distortion
             pattern_size = (x, y)
-            camera_matrix, dist_coefs = self.__calibrateCorners(pattern_size, n, square_size)
-            self.__camera_matrix, self.__dist_coefs = camera_matrix, dist_coefs
+            ret = self.__calibrateCorners(pattern_size, n, square_size)
+            
+            if ret != None:
+                camera_matrix, dist_coefs = ret
+                self.__camera_matrix, self.__dist_coefs = camera_matrix, dist_coefs
             
             # undistort image
             img = self.undistortImage(self.__img)
@@ -159,25 +162,27 @@ class Distortion(object):
             self.__gui.status("Searching for boders to crop image ...")
             
             # get corners
-            found = False
-            frames = 0;
-            tries = 0;
-            while not found and frames < n and tries < 10:
-                img = self.undistortImage(self.__img)
-                found, corners = getChessBoardCorners( img, pattern_size )
+            if ret != None:
+                found = False
+                frames = 0;
+                tries = 0;
+                while not found and frames < n and tries < 10:
+                    img = self.undistortImage(self.__img)
+                    found, corners = getChessBoardCorners( img, pattern_size )
+                    if found:
+                        frames += 1
+                    tries += 1
+                
+                # crop image
                 if found:
-                    frames += 1
-                tries += 1
+                    self.__corners = getImageSizeFromCorners(corners)        
+                    self.__imgScene = self.cropImage(img)
+                    
+                self.__calibrated = True    
             
-            # crop image
-            if found:
-                self.__corners = getImageSizeFromCorners(corners)
-    
-            self.__imgScene = self.cropImage(img)
-            
-            # set calibration flag
-            self.__gui.status("Calibration finished.")
-            self.__calibrated = True               
+        # set calibration flag
+        self.__gui.status("Calibration finished.")
+                   
         
         self.__calibrating = False 
         
@@ -194,13 +199,14 @@ class Distortion(object):
         obj_points = []
         img_points = []        
         frames = 0;
+        tries = 0
         lastCount = self.__imgCounter;
         
         # detect pattern
-        while frames < n:
+        while frames < n and tries < 10:
             img = self.__img
             
-            if lastCount < self.__imgCounter:
+            if lastCount != self.__imgCounter:
                 # get corners                
                 found, corners = getChessBoardCorners( img, pattern_size )
                 
@@ -215,9 +221,12 @@ class Distortion(object):
                     # draw corners
                     drawChessboardCorners( img, pattern_size, corners, found )
                     self.__imgScene = img
+                    tries = 0
+                tries += 1
                     
         # get cmera values
-        return getCalibrationData(img, obj_points, img_points )
+        if img != None and len(obj_points) > 0 and len(img_points) > 0:
+            return getCalibrationData(img, obj_points, img_points )
     
     def cropImage(self, img=None):
         '''
@@ -246,15 +255,15 @@ class Distortion(object):
             else:
                 ymin = 0    
                              
-            if xmax+borderX < img.shape[1]:
+            if xmax+borderX <= img.shape[1]:
                 xmax = xmax+borderX
             else:
-                xmax = img.shape[1] 
+                xmax = img.shape[1]-1 
                                 
-            if ymax+borderY < img.shape[0]:
+            if ymax+borderY <= img.shape[0]:
                 ymax = ymax+borderY
             else:
-                ymax = img.shape[0]
+                ymax = img.shape[0]-1
             
             # conversion before
             if self.__gui.getObj("chkCropConvBefore").isChecked():
