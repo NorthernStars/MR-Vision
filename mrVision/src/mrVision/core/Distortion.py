@@ -8,10 +8,10 @@ from core.imageprocessing import findChessBoardPatternSize, imageToPixmap, getCh
 from core.imageprocessing import getCalibrationData, undistortImg, getImageSizeFromCorners
 
 from numpy import float32, zeros, indices, prod
-from cv2 import drawChessboardCorners
+from cv2 import drawChessboardCorners, cvtColor, COLOR_BGR2RGB
 
 from PyQt4.QtGui import QGraphicsScene
-from PyQt4.QtCore import QTimer
+from PyQt4.QtCore import QTimer, Qt
 from thread import start_new_thread
 
 
@@ -42,6 +42,8 @@ class Distortion(object):
         '''
         Constructor
         '''        
+        self.__gui = GuiLoader()
+        
         if gui != None:
             self.__gui = gui
             self.__initGui()
@@ -96,14 +98,15 @@ class Distortion(object):
         self.__gview.show()
         
         # start search
-        QTimer.singleShot(0, self.__searchChessBoardPattern )
+        #timer = QTimer()
+        #timer.singleShot(1, self.__searchChessBoardPattern )
+        start_new_thread( self.__searchChessBoardPattern, () )
         
     def __searchChessBoardPattern(self):
         '''
         Searches for chessboard pattern
         (start in background)
         '''
-        txt = "No pattern found"
         
         # get start and max values
         xStart = int( str( self.__gui.getObj("txtPatternXMin").text() ) )
@@ -118,16 +121,8 @@ class Distortion(object):
             if pattern != None and len(pattern) > 0:                
                 # set pattern
                 if len(pattern) == 2:
-                    self.__gui.getObj("txtPatternX").setText( str(self.__pattern[0]) )
-                    self.__gui.getObj("txtPatternY").setText( str(self.__pattern[1]) )
-                    txt = "Found: (" + str(self.__pattern[0]) + "," + str(self.__pattern[1]) + ")"
-                else:
-                    self.__pattern = (3,3)
-        
-        # show result
-        self.__scene.clear()
-        self.__scene.addSimpleText(txt)
-        self.__gview.show()
+                    self.__gui.getObj("txtPatternX").setText( str(pattern[0]) )
+                    self.__gui.getObj("txtPatternY").setText( str(pattern[1]) )
     
     def calibrateCamera(self):
         '''
@@ -144,6 +139,7 @@ class Distortion(object):
         # check for correct image        
         if self.__img != None:
             self.__calibrating = True
+            self.__gui.status("Calibrating ...")
                   
             # get values
             x = int(str( self.__gui.getObj("txtPatternX").text() ))
@@ -160,14 +156,18 @@ class Distortion(object):
             img = self.undistortImage(self.__img)
             self.__imgScene = img
             
+            self.__gui.status("Searching for boders to crop image ...")
+            
             # get corners
             found = False
             frames = 0;
-            while not found and frames < n:
+            tries = 0;
+            while not found and frames < n and tries < 10:
                 img = self.undistortImage(self.__img)
                 found, corners = getChessBoardCorners( img, pattern_size )
                 if found:
                     frames += 1
+                tries += 1
             
             # crop image
             if found:
@@ -176,6 +176,7 @@ class Distortion(object):
             self.__imgScene = self.cropImage(img)
             
             # set calibration flag
+            self.__gui.status("Calibration finished.")
             self.__calibrated = True               
         
         self.__calibrating = False 
@@ -225,7 +226,7 @@ class Distortion(object):
         '''
         borders = int(str( self.__gui.getObj("txtCalibrationBorders").text() )) / 100.0
         
-        if self.__corners != None and img != None:
+        if self.__corners != None and img != None and self.__gui.getObj("chkCropImg").isChecked():
             xmin = int(self.__corners[0][0])
             xmax = int(self.__corners[0][1])
             ymin = int(self.__corners[1][0])
@@ -239,27 +240,31 @@ class Distortion(object):
                 xmin = xmin-borderX
             else:
                 xmin = 0    
-                            
+                             
             if ymin-borderY > 0:
                 ymin = ymin-borderY
             else:
                 ymin = 0    
-                            
+                             
             if xmax+borderX < img.shape[1]:
                 xmax = xmax+borderX
             else:
                 xmax = img.shape[1] 
-                               
+                                
             if ymax+borderY < img.shape[0]:
                 ymax = ymax+borderY
             else:
                 ymax = img.shape[0]
+            
+            # conversion before
+            if self.__gui.getObj("chkCropConvBefore").isChecked():
+                img = cvtColor( img, COLOR_BGR2RGB )
                 
-            #print "shape size:", img.shape
-            #print "crop info", ymin, ymax, xmin, xmax
-            cropimg = img[ymin:ymax, :, :]
-            #print "CROP", cropimg.shape, img.shape
-            img = cropimg
+            # crop image
+            img = img[ymin:ymax, xmin:xmax]
+            
+            # conversion after
+            img = cvtColor( img, COLOR_BGR2RGB )
         
         return img
     
@@ -270,6 +275,7 @@ class Distortion(object):
         if self.__imgScene != None:
             self.__scene.clear()
             self.__scene.addPixmap( imageToPixmap(self.__imgScene) )
+            self.__gview.fitInView( self.__scene.sceneRect(), Qt.KeepAspectRatio )
             self.__gview.show()
     
     def undistortImage(self, img=None):

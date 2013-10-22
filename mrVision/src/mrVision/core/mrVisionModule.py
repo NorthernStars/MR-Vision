@@ -12,6 +12,7 @@ from mrLib.logging import mrLogger
 
 from time import time, sleep
 from thread import start_new_thread
+from subprocess import call
 from gui.GuiLoader import GuiLoader
 from core.ImageGrabber import ImageGrabber
 from core.Distortion import Distortion
@@ -63,6 +64,13 @@ class mrVisionModule(object):
             self.__gui = guiloader 
             self.__imageGrabber = ImageGrabber(self.__gui)
             self.__distortion = Distortion(self.__gui)
+            self.__initGui()
+            
+    def __initGui(self):
+        '''
+        Initiates gui
+        '''
+        self.__gui.connect( "cmdCoriander", "clicked()", self.__startCoriander )
         
     def __initNetworkInterface(self):
         '''
@@ -95,6 +103,13 @@ class mrVisionModule(object):
             return False
         
         return True
+    
+    def __startCoriander(self):
+        '''
+        Starts external program coriander
+        '''
+        self.__imageGrabber.stopVideo()
+        start_new_thread(call, ("coriander",))
         
     def __createProtocolData(self, dataType=mrProtocol.PROTOCOL_TYPE_GAMEDATA):
         '''

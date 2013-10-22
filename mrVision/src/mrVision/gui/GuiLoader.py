@@ -8,12 +8,13 @@ Created on 08.10.2012
 '''
 import os
 
-from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import QObject, SIGNAL, QTimer
+from PyQt4.QtGui import QMainWindow, QWidget, QFileDialog
 from visionGui import Ui_frmMain
 
-class GuiLoader(QtGui.QMainWindow):
+class GuiLoader(QMainWindow):
     '''
-    classdocs
+    Class for loading gui
     '''
     msgTypes = {
                 'INFO':0,
@@ -33,10 +34,14 @@ class GuiLoader(QtGui.QMainWindow):
                         'path':os.getcwd()
                         }
     ui = Ui_frmMain()
+    
     eDefinitions = {
-                      'status': ['lblAccessVarStatus', 'lblUsrStatus_2', 'lblSettingsStatus'],
-                      'lang': ['cmbLangAct1', 'cmbLangAct', 'cmbLangAct2', 'cmbLangAct_2']
-                      }
+                    'status': ['lblStatus']
+                    }
+    
+    __statusTimer = QTimer()
+    __statusMsg = ""
+    __statusType = msgTypes['INFO']
 
 
     def __init__(self, parent=None):
@@ -44,6 +49,8 @@ class GuiLoader(QtGui.QMainWindow):
         Constructor
         @param parent: Not needed yet
         '''
+        self.__statusMsg = ""
+        self.__statusType = self.msgTypes['INFO']
         # create gui
         if parent != None:
             self.showInterface()
@@ -57,8 +64,13 @@ class GuiLoader(QtGui.QMainWindow):
         '''
         
         # create gui
-        QtGui.QWidget.__init__(self, parent)
+        QWidget.__init__(self, parent)
         self.ui.setupUi(self)
+        
+        # start status timer
+        self.__statusTimer = QTimer()
+        self.__statusTimer.timeout.connect( self.__status )
+        self.__statusTimer.start(100)
         
     
     def callFunction(self, obj, function, args=[]):
@@ -115,7 +127,7 @@ class GuiLoader(QtGui.QMainWindow):
         obj = 'self.ui.' + str(obj)
         try:
             obj = eval(obj)
-            QtCore.QObject.connect(obj, QtCore.SIGNAL(str(event)), callback)
+            QObject.connect(obj, SIGNAL(str(event)), callback)
         except:
             print "ERROR: Could not connect object " + str(obj)
             
@@ -130,11 +142,11 @@ class GuiLoader(QtGui.QMainWindow):
         obj = 'self.ui.' + str(obj)
         try:
             obj = eval(obj)
-            QtCore.QObject.disconnect(obj, QtCore.SIGNAL(str(event)), callback)
+            QObject.disconnect(obj, SIGNAL(str(event)), callback)
         except:
             print "ERROR: Could not disconnect signals from object " + str(obj)
     
-    def status(self, msg='', msgType=msgTypes['INFO']):
+    def __status(self):
         '''
         Displays a message at the status labels
         
@@ -145,16 +157,25 @@ class GuiLoader(QtGui.QMainWindow):
         end = '</span>'
         
         # check for message type
-        if msgType == self.msgTypes['ERROR']:
+        if self.__statusType == self.msgTypes['ERROR']:
             start = '<span style="color: red">'
-        elif msgType == self.msgTypes['WARNING']:
+        elif self.__statusType == self.msgTypes['WARNING']:
             start = '<span style="color: orange">'
         
         # set status labels
         for obj in self.eDefinitions['status']:
-            value = start + str(msg) + end
-            self.callFunction(obj, 'setText', [str(value)])      
+            value = start + str(self.__statusMsg) + end
+            self.callFunction(obj, 'setText', [str(value)])
+            
+    def status(self, msg='', msgType=msgTypes['INFO']):
+        '''
+        Displays a message at the status labels
         
+        @param msg: Message to display
+        @param msgType: Type of msgTypes[] value for message-type (optional, default= msgTypes['INFO'])
+        '''      
+        self.__statusMsg = msg
+        self.__statusType = msgType
         
     def dialog(self, options=dialogOptionsDef):
         '''
@@ -166,8 +187,8 @@ class GuiLoader(QtGui.QMainWindow):
         ret = None
         
         if options['type'] == self.dialogTypes['FileOpen']:
-            ret = QtGui.QFileDialog.getOpenFileName(self.ui.chkAccessVarEditable, options['title'], options['path'], options['filetypes'])
+            ret = QFileDialog.getOpenFileName(None, options['title'], options['path'], options['filetypes'])
         elif options['type'] == self.dialogTypes['FileSave']:
-            ret = QtGui.QFileDialog.getSaveFileName(self.ui.chkAccessVarEditable, options['title'], options['path'], options['filetypes'])
+            ret = QFileDialog.getSaveFileName(None, options['title'], options['path'], options['filetypes'])
         
         return ret

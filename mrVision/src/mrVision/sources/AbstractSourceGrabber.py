@@ -31,6 +31,12 @@ class AbstractSourceGrabber(object):
         '''
         pass
     
+    def getSource(self):
+        '''
+        Returns source
+        '''
+        return self._source
+    
     def setParameter(self, srcW=None, srcH=None, gray=None):
         '''
         Sets parameter of source
