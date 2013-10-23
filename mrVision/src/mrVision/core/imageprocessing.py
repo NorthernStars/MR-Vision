@@ -1,6 +1,7 @@
 from cv2 import VideoCapture, cvtColor, findChessboardCorners, cornerSubPix, undistort, calibrateCamera, imread
 from cv2 import TERM_CRITERIA_COUNT, TERM_CRITERIA_EPS
 from cv2 import COLOR_RGB2GRAY
+from cv2.cv import CV_CAP_PROP_FRAME_HEIGHT, CV_CAP_PROP_FRAME_WIDTH
 
 from PyQt4.QtGui import QImage, QPixmap
 from numpy import ndarray
@@ -154,3 +155,14 @@ def getImageSizeFromCorners(corners=[]):
 		return [ (xmin, xmax), (ymin, ymax) ]
 	
 	return None
+
+def setCamImgSize(cam=None, w=320, h=240):
+	'''
+	Sets image size of camera
+	@param cam: Camera
+	@param w: Width of image
+	@param h: Height of image
+	'''
+	if cam != None and str(w).isdigit() and str(h).isdigit():
+		cam.set(CV_CAP_PROP_FRAME_WIDTH, w)
+		cam.set(CV_CAP_PROP_FRAME_HEIGHT, h)

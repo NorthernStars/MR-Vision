@@ -35,7 +35,7 @@
        <x>199</x>
        <y>10</y>
        <width>581</width>
-       <height>501</height>
+       <height>461</height>
       </rect>
      </property>
      <property name="resizeAnchor">
@@ -45,7 +45,7 @@
     <widget class="QPushButton" name="cmdCoriander">
      <property name="geometry">
       <rect>
-       <x>140</x>
+       <x>610</x>
        <y>520</y>
        <width>111</width>
        <height>31</height>
@@ -59,7 +59,7 @@
      <property name="geometry">
       <rect>
        <x>670</x>
-       <y>520</y>
+       <y>480</y>
        <width>111</width>
        <height>31</height>
       </rect>
@@ -72,7 +72,7 @@
      <property name="geometry">
       <rect>
        <x>550</x>
-       <y>520</y>
+       <y>480</y>
        <width>111</width>
        <height>31</height>
       </rect>
@@ -202,6 +202,35 @@
      </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cmbImgSize">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>480</y>
+       <width>171</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="maxVisibleItems">
+      <number>5</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblImgSize">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>480</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Size:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </widget>
@@ -515,10 +544,13 @@
       </widget>
      </widget>
      <widget class="QGroupBox" name="chkCropImg">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>490</x>
-        <y>290</y>
+        <y>400</y>
         <width>281</width>
         <height>91</height>
        </rect>
@@ -528,6 +560,9 @@
       </property>
       <property name="checkable">
        <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
       </property>
       <widget class="QCheckBox" name="chkCropConvBefore">
        <property name="geometry">
@@ -601,6 +636,80 @@
        <string>&amp;Save</string>
       </property>
      </widget>
+     <widget class="QGroupBox" name="chkCropImgManual">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>290</y>
+        <width>281</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Manual crop image</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <widget class="QLineEdit" name="txtBorderLR">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>30</y>
+         <width>41</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>10</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="txtBorderTB">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>60</y>
+         <width>41</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>10</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lblImgBorderLR">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>211</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Border left/right [px]:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lblBorderTB">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>211</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Border top/bottom [px]:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="tabSettings">
@@ -652,9 +761,6 @@
       </property>
      </widget>
     </widget>
-    <zorder>grbTransformation</zorder>
-    <zorder>imgTransformation</zorder>
-    <zorder>cmdCCalibrateTransformation</zorder>
    </widget>
    <widget class="QWidget" name="tabRecognition">
     <attribute name="title">

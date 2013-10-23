@@ -48,7 +48,15 @@ class ImageGrabber(object):
         self.__scene = QGraphicsScene()
         self.__gview.setScene(self.__scene)
         
-        # add combobox items
+        # add image size combobox items
+        cmb = self.__gui.getObj("cmbImgSize")
+        cmb.addItem("320x240")
+        cmb.addItem("640x768")
+        cmb.addItem("800x600")
+        cmb.addItem("1024x768")
+        cmb.addItem("1280x920")
+        
+        # add conversion combobox items
         cmb = self.__gui.getObj("cmbConversion")
         cmb.addItem("None")
         cmb.addItem("COLOR_BGR2RGB")
@@ -62,6 +70,7 @@ class ImageGrabber(object):
         self.__gui.connect( "cmdAddSource", "clicked()", self.__addCamSource )
         self.__gui.connect( "cmdAddFile", "clicked()", self.__addFileSource )
         self.__gui.connect( "cmdDelSource", "clicked()", self.__removeSourceFromList )
+        self.__gui.connect( "cmbImgSize", "currentIndexChanged(QString)", self.__imageSizeChanged )
         
     def isActive(self):
         '''
@@ -151,6 +160,21 @@ class ImageGrabber(object):
         if len(images) > 0:
             return images[0]
         return False
+    
+    def __imageSizeChanged(self, size="640x480"):
+        '''
+        Changes image size
+        '''
+        size = str(size).split("x")
+        w = int(size[0])
+        h = int(size[1])
+        
+        # set size
+        for cam in self.__sources:
+            if type(cam) == CamGrabber:
+                assert isinstance(cam, CamGrabber)
+                cam.setImgSize(w, h)
+        
     
     def __addSourceToList(self, grabber=None):
         '''
