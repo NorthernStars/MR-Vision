@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Wed Oct 23 16:46:04 2013
+# Created: Wed Oct 23 17:05:59 2013
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -300,6 +300,6 @@ class Ui_frmMain(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSettings), _translate("frmMain", "Transformation", None))
         self.grbRecognition.setTitle(_translate("frmMain", "Object Recognition", None))
         self.cmdStartRecognition.setText(_translate("frmMain", "&Start", None))
-        self.cmdStopRecognition.setText(_translate("frmMain", "&Start", None))
+        self.cmdStopRecognition.setText(_translate("frmMain", "S&top", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabRecognition), _translate("frmMain", "Object Recognition", None))
 

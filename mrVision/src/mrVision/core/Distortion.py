@@ -73,6 +73,8 @@ class Distortion(object):
         self.__gui.connect( "cmdCalibrateDistortion", "clicked()", self.calibrateCamera )
         self.__gui.connect( "cmdSaveDistortion", "clicked()", self.__saveConfiguration )
         self.__gui.connect( "cmdLoadDistortion", "clicked()", self.__loadConfiguration )
+        self.__gui.connect( "chkCropImg", "toggled(bool)", self.__borderSelectionChanged )
+        self.__gui.connect( "chkCropImgManual", "toggled(bool)", self.__borderSelectionChanged )
         
         # start timer
         self.__sceneImgTimer = QTimer()
@@ -99,6 +101,23 @@ class Distortion(object):
         '''
         self.__img = img
         self.__imgCounter += 1
+        
+    def __borderSelectionChanged(self):
+        '''
+        Checks selection of manual/auto
+        border settings gui group
+        '''
+        if self.__gui.getObj("chkCropImgManual").isChecked():
+            self.__gui.getObj("chkCropImg").setChecked(False)
+            self.__gui.getObj("chkCropImg").setEnabled(False)
+        else:
+            self.__gui.getObj("chkCropImg").setEnabled(True)
+            
+        if self.__gui.getObj("chkCropImg").isChecked():
+            self.__gui.getObj("chkCropImgManual").setChecked(False)
+            self.__gui.getObj("chkCropImgManual").setEnabled(False)
+        else:
+            self.__gui.getObj("chkCropImgManual").setEnabled(True)
     
     def findChessBoardPattern(self):
         '''
@@ -184,12 +203,12 @@ class Distortion(object):
                         frames += 1
                     tries += 1
                 
-                # crop image
                 if found:
                     self.__corners = getImageSizeFromCorners(corners)        
-                    self.__imgScene = self.cropImage(img)
-                    
-                self.__calibrated = True    
+                
+            # crop image
+            self.__imgScene = self.cropImage(img)                    
+            self.__calibrated = True    
             
         # set calibration flag
         self.__gui.status("Calibration finished.")
@@ -244,16 +263,30 @@ class Distortion(object):
         Crops image if corners available
         @return: croped Image
         '''
-        borders = int(str( self.__gui.getObj("txtCalibrationBorders").text() )) / 100.0
         
-        if self.__corners != None and img != None and self.__gui.getObj("chkCropImg").isChecked():
-            xmin = int(self.__corners[0][0])
-            xmax = int(self.__corners[0][1])
-            ymin = int(self.__corners[1][0])
-            ymax = int(self.__corners[1][1])
+        
+        if self.__corners != None and img != None and ( self.__gui.getObj("chkCropImg").isChecked() or self.__gui.getObj("chkCropImgManual").isChecked() ) :            
             
-            borderX = int(img.shape[1] * borders)
-            borderY = int(img.shape[0] * borders)
+            # default settings for manual crop
+            borderX = int( str(self.__gui.getObj("txtBorderLR").text()) ) 
+            borderY = int( str(self.__gui.getObj("txtBorderTB").text()) )
+            
+            xmin = (img.shape[1]-1)/2 - borderX
+            xmax = (img.shape[1]-1)/2 + borderX
+            ymin = (img.shape[0]-1)/2 - borderY
+            ymax = (img.shape[0]-1)/2 + borderY
+            
+            
+            # settings for automatic crop
+            if self.__gui.getObj("chkCropImg").isChecked():
+                borders = int(str( self.__gui.getObj("txtCalibrationBorders").text() )) / 100.0        
+                borderX = int(img.shape[1] * borders)
+                borderY = int(img.shape[0] * borders)
+                
+                xmin = int(self.__corners[0][0])
+                xmax = int(self.__corners[0][1])
+                ymin = int(self.__corners[1][0])
+                ymax = int(self.__corners[1][1])
             
             # check new borders
             if xmin-borderX > 0:
@@ -281,10 +314,13 @@ class Distortion(object):
                 img = cvtColor( img, COLOR_BGR2RGB )
                 
             # crop image
-            img = img[ymin:ymax, xmin:xmax]
+            try:
+                img = img[ymin:ymax, xmin:xmax]
             
-            # conversion after
-            img = cvtColor( img, COLOR_BGR2RGB )
+                # conversion after
+                img = cvtColor( img, COLOR_BGR2RGB )
+            except:
+                print "ERROR"
         
         return img
     
