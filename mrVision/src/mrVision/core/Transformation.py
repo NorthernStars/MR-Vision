@@ -83,13 +83,16 @@ class Transformation(object):
         '''
         Starts calibration of transformation
         '''
-        start_new_thread(self.__calibrateTransformation, ())
+        if  not self.isCalibrating():
+            start_new_thread(self.__calibrateTransformation, ())
         
     def __calibrateTransformation(self):
         '''
         Calculates transformation values
         '''
         self.__gui.status("Calibrating transformation...")
+        self.__calibrating = True
+        img = self.__img
         
         '''
         ------------------------------------------------------------
@@ -99,6 +102,7 @@ class Transformation(object):
         
         print "calculating transformation..."
         
+        self.__calibrating = False
         self.__gui.status("Calibration finished.")
         pass
     

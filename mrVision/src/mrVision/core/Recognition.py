@@ -118,6 +118,7 @@ class Recognition(object):
         lastImg = self.__imgCounter
         while self.__isRecognizing:
             if self.__imgCounter != lastImg:
+                self.__isRecognizing = True
                 img = self.__img
                 
                 '''
@@ -127,8 +128,7 @@ class Recognition(object):
                 '''
                 print "recognizing..."
                 
-                self.__imgScene = img
-                pass
+                self.__isRecognizing = False
     
         
     def __showImage(self):
