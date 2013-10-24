@@ -33,7 +33,7 @@ class GuiLoader(QMainWindow):
                         'title':'Open File',
                         'path':os.getcwd()
                         }
-    ui = Ui_frmMain()
+    ui = None
     
     eDefinitions = {
                     'status': ['lblStatus']
@@ -53,6 +53,7 @@ class GuiLoader(QMainWindow):
         self.__statusType = self.msgTypes['INFO']
         # create gui
         if parent != None:
+            self.ui = Ui_frmMain()
             self.showInterface()
     
     
@@ -64,8 +65,10 @@ class GuiLoader(QMainWindow):
         '''
         
         # create gui
-        QWidget.__init__(self, parent)
-        self.ui.setupUi(self)
+        super(GuiLoader, self).__init__()
+        widget = QWidget(self)
+        self.ui.setupUi(widget)
+        self.setCentralWidget(widget)
         
         # start status timer
         self.__statusTimer = QTimer()
