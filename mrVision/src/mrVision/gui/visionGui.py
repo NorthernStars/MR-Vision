@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Thu Oct 24 12:30:09 2013
+# Created: Thu Oct 24 12:38:08 2013
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,7 +27,7 @@ class Ui_frmMain(object):
     def setupUi(self, frmMain):
         frmMain.setObjectName(_fromUtf8("frmMain"))
         frmMain.resize(800, 650)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(frmMain.sizePolicy().hasHeightForWidth())
@@ -43,6 +43,11 @@ class Ui_frmMain(object):
         self.lblStatus.setObjectName(_fromUtf8("lblStatus"))
         self.gridLayout.addWidget(self.lblStatus, 1, 0, 1, 1)
         self.scrollArea = QtGui.QScrollArea(frmMain)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
+        self.scrollArea.setSizePolicy(sizePolicy)
         self.scrollArea.setFrameShadow(QtGui.QFrame.Plain)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))

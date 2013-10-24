@@ -347,12 +347,16 @@ class Distortion(object):
         '''
         Loads configuration
         '''
+        # stop video
+        active = self.__imageGrabber.isActive()
         self.__imageGrabber.stopVideo()
+        
+        # get path
         options = copy(self.__gui.dialogOptionsDef)
-        options['filetypes'] = "mrVision Configuration files (*cfg *mr)"
+        options['filetypes'] = "config file (*cfg)"
         src = str( self.__gui.dialog(options) )
         
-        if len(src) > 0:
+        if len(src) > 0:           
             # load file
             data = load( open(src, "rb") )
             
@@ -364,15 +368,40 @@ class Distortion(object):
                 self.__corners = data['corners']
             if 'calibrated' in data:
                 self.__calibrated = data['calibrated']
+            if 'cropmanual' in data:
+                self.__gui.getObj("chkCropImgManual").setChecked( data['cropmanual'] )
+            if 'cropauto' in data:
+                self.__gui.getObj("chkCropImg").setChecked( data['cropauto'] )
+            if 'cropBorderLR' in data:
+                self.__gui.getObj("txtBorderLR").setText( data['cropBorderLR'] )
+            if 'cropBorderTB' in data:
+                self.__gui.getObj("txtBorderTB").setText( data['cropBorderTB'] )
+            if 'cropauto' in data:
+                self.__gui.getObj("txtCalibrationBorders").setText( data['cropauto'] )
+            if 'squareSize' in data:
+                self.__gui.getObj("txtCalibrationSquareSize").setText( data['squareSize'] )
+            if 'calibFrames' in data:
+                self.__gui.getObj("txtCalibrationFrames").setText( data['calibFrames'] )
+            if 'patternX' in data:
+                self.__gui.getObj("txtPatternX").setText( data['patternX'] )
+            if 'patternY' in data:
+                self.__gui.getObj("txtPatternY").setText( data['patternY'] )
             
             self.__gui.status("Configuration loaded.")
+            
+        # restore video streaming mode
+        if active:
+            self.__imageGrabber.startVideo()
             
                 
     def __saveConfiguration(self):
         '''
         Saves configuration
         '''
+        # stop video
+        active = self.__imageGrabber.isActive()
         self.__imageGrabber.stopVideo()
+        
         options = copy(self.__gui.dialogOptionsDef)
         options['type'] = self.__gui.dialogTypes['FileSave']
         options['title'] = "Save configuration"
@@ -380,8 +409,28 @@ class Distortion(object):
         src = str( self.__gui.dialog(options) )
         
         if len(src) > 0:
+            # check path
+            if not src.endswith(".cfg"):
+                src += ".cfg"
+            
             # save data to file     
-            data = {'camera_matrix': self.__camera_matrix, 'dist_coefs': self.__dist_coefs, 'corners': self.__corners, 'calibrated': self.__calibrated}
-            dump( data, open(src, "wb") )
+            data = {'camera_matrix': self.__camera_matrix,
+                    'dist_coefs': self.__dist_coefs,
+                    'corners': self.__corners,
+                    'calibrated': self.__calibrated,
+                    'cropmanual': self.__gui.getObj("chkCropImgManual").isChecked(),
+                    'cropauto:': self.__gui.getObj("chkCropImg").isChecked(),
+                    'cropBorder': str( self.__gui.getObj("txtCalibrationBorders").text() ),
+                    'cropBorderLR': str( self.__gui.getObj("txtBorderLR").text() ),
+                    'cropBorderTB': str( self.__gui.getObj("txtBorderTB").text() ),
+                    'squareSize': str( self.__gui.getObj("txtCalibrationSquareSize").text() ),
+                    'calibFrames': str( self.__gui.getObj("txtCalibrationFrames").text() ),
+                    'patternX': str( self.__gui.getObj("txtPatternX").text() ),
+                    'patternY': str( self.__gui.getObj("txtPatternY").text() )}
+                        
+            dump( data, open(src, "wb") )            
             self.__gui.status("Configuration saved to: " + src)
             
+        # restore video streaming mode
+        if active:
+            self.__imageGrabber.startVideo()
