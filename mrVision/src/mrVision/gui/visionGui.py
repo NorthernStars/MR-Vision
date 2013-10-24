@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Thu Oct 24 11:33:29 2013
+# Created: Thu Oct 24 11:36:46 2013
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -139,7 +139,7 @@ class Ui_frmMain(object):
         self.widget.setMaximumSize(QtCore.QSize(300, 16777215))
         self.widget.setObjectName(_fromUtf8("widget"))
         self.lblPatternX = QtGui.QLabel(self.widget)
-        self.lblPatternX.setGeometry(QtCore.QRect(90, 22, 59, 21))
+        self.lblPatternX.setGeometry(QtCore.QRect(60, 22, 71, 21))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -148,7 +148,7 @@ class Ui_frmMain(object):
         self.lblPatternX.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.lblPatternX.setObjectName(_fromUtf8("lblPatternX"))
         self.lblPatternY = QtGui.QLabel(self.widget)
-        self.lblPatternY.setGeometry(QtCore.QRect(190, 22, 59, 21))
+        self.lblPatternY.setGeometry(QtCore.QRect(178, 22, 71, 21))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -157,7 +157,7 @@ class Ui_frmMain(object):
         self.lblPatternY.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.lblPatternY.setObjectName(_fromUtf8("lblPatternY"))
         self.txtPatternX = QtGui.QLineEdit(self.widget)
-        self.txtPatternX.setGeometry(QtCore.QRect(160, 22, 31, 27))
+        self.txtPatternX.setGeometry(QtCore.QRect(140, 22, 31, 27))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -369,7 +369,7 @@ class Ui_frmMain(object):
         self.gridLayout.addWidget(self.lblStatus, 1, 0, 1, 1)
 
         self.retranslateUi(frmMain)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(frmMain)
 
     def retranslateUi(self, frmMain):
@@ -387,8 +387,8 @@ class Ui_frmMain(object):
         self.cmdDelSource.setText(_translate("frmMain", "&Remove", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabImage), _translate("frmMain", "Video", None))
         self.grbUnfisheye.setTitle(_translate("frmMain", "Distortion", None))
-        self.lblPatternX.setText(_translate("frmMain", "Pattern X:", None))
-        self.lblPatternY.setText(_translate("frmMain", "Pattern Y:", None))
+        self.lblPatternX.setText(_translate("frmMain", "Corners X:", None))
+        self.lblPatternY.setText(_translate("frmMain", "Corners Y:", None))
         self.txtPatternX.setText(_translate("frmMain", "5", None))
         self.txtPatternY.setText(_translate("frmMain", "8", None))
         self.chkCropConvBefore.setText(_translate("frmMain", "Convert from BGR to RGB before crop", None))

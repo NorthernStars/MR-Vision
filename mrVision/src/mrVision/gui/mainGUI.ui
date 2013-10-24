@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabImage">
       <attribute name="title">
@@ -219,9 +219,9 @@
             <widget class="QLabel" name="lblPatternX">
              <property name="geometry">
               <rect>
-               <x>90</x>
+               <x>60</x>
                <y>22</y>
-               <width>59</width>
+               <width>71</width>
                <height>21</height>
               </rect>
              </property>
@@ -232,7 +232,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Pattern X:</string>
+              <string>Corners X:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -241,9 +241,9 @@
             <widget class="QLabel" name="lblPatternY">
              <property name="geometry">
               <rect>
-               <x>190</x>
+               <x>178</x>
                <y>22</y>
-               <width>59</width>
+               <width>71</width>
                <height>21</height>
               </rect>
              </property>
@@ -254,7 +254,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Pattern Y:</string>
+              <string>Corners Y:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -263,7 +263,7 @@
             <widget class="QLineEdit" name="txtPatternX">
              <property name="geometry">
               <rect>
-               <x>160</x>
+               <x>140</x>
                <y>22</y>
                <width>31</width>
                <height>27</height>
