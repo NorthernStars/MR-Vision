@@ -11,7 +11,7 @@ from core.imageprocessing import imageToPixmap
 
 from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
-from cv2 import cvtColor, COLOR_BGR2RGB, COLOR_GRAY2RGB, COLOR_HLS2RGB, COLOR_YUV2RGB  # @UnusedImport
+from cv2 import cvtColor, COLOR_BGR2RGB, COLOR_GRAY2RGB, COLOR_HLS2RGB, COLOR_YUV2RGB, imwrite  # @UnusedImport
 from numpy import ndarray
 from copy import copy
 
@@ -71,6 +71,7 @@ class ImageGrabber(object):
         self.__gui.connect( "cmdAddFile", "clicked()", self.__addFileSource )
         self.__gui.connect( "cmdDelSource", "clicked()", self.__removeSourceFromList )
         self.__gui.connect( "cmbImgSize", "currentIndexChanged(QString)", self.__imageSizeChanged )
+        self.__gui.connect( "cmdSaveImg", "clicked()", self.saveImg )
         
     def isActive(self):
         '''
@@ -106,6 +107,37 @@ class ImageGrabber(object):
         @return: Image
         '''
         return self.__img
+    
+    def saveImg(self):
+        '''
+        Saves image
+        '''
+        if self.__img != None:
+            img = self.__img
+            
+            # stop video
+            active = self.isActive()
+            self.stopVideo()
+            
+            # open file dialog
+            options = copy(self.__gui.dialogOptionsDef)
+            options['type'] = self.__gui.dialogTypes['FileSave']
+            options['filetypes'] = "JPG (*.jpg)"
+            options['title'] = "Save current frame as"
+            src = str( self.__gui.dialog(options) )
+            
+            # check filepath and save
+            if len(src) > 0:
+                if not src.endswith(".jpg"):
+                    src = src+".jpg"
+                print "write to", src
+                cvtColor(img, COLOR_BGR2RGB)
+                imwrite(src, img)
+            
+            # reset video streaming
+            if active:
+                self.startVideo()
+        
     
     def __showImage(self):
         '''

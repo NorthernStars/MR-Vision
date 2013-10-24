@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Thu Oct 24 11:48:03 2013
+# Created: Thu Oct 24 12:30:09 2013
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,13 @@ except AttributeError:
 class Ui_frmMain(object):
     def setupUi(self, frmMain):
         frmMain.setObjectName(_fromUtf8("frmMain"))
-        frmMain.resize(697, 660)
+        frmMain.resize(800, 650)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(frmMain.sizePolicy().hasHeightForWidth())
+        frmMain.setSizePolicy(sizePolicy)
+        frmMain.setMinimumSize(QtCore.QSize(0, 0))
         self.gridLayout = QtGui.QGridLayout(frmMain)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.lblStatus = QtGui.QLabel(frmMain)
@@ -41,7 +47,7 @@ class Ui_frmMain(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 677, 616))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 780, 606))
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.gridLayout_5 = QtGui.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_5.setObjectName(_fromUtf8("gridLayout_5"))
@@ -118,9 +124,6 @@ class Ui_frmMain(object):
         self.cmbConversion.setMaxVisibleItems(5)
         self.cmbConversion.setObjectName(_fromUtf8("cmbConversion"))
         self.gridLayout_2.addWidget(self.cmbConversion, 6, 3, 1, 1)
-        self.cmdCoriander = QtGui.QPushButton(self.tabImage)
-        self.cmdCoriander.setObjectName(_fromUtf8("cmdCoriander"))
-        self.gridLayout_2.addWidget(self.cmdCoriander, 6, 4, 1, 2)
         self.lstSources = QtGui.QListWidget(self.tabImage)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -133,6 +136,12 @@ class Ui_frmMain(object):
         self.cmdDelSource = QtGui.QPushButton(self.tabImage)
         self.cmdDelSource.setObjectName(_fromUtf8("cmdDelSource"))
         self.gridLayout_2.addWidget(self.cmdDelSource, 5, 0, 1, 2)
+        self.cmdCoriander = QtGui.QPushButton(self.tabImage)
+        self.cmdCoriander.setObjectName(_fromUtf8("cmdCoriander"))
+        self.gridLayout_2.addWidget(self.cmdCoriander, 6, 4, 1, 1)
+        self.cmdSaveImg = QtGui.QPushButton(self.tabImage)
+        self.cmdSaveImg.setObjectName(_fromUtf8("cmdSaveImg"))
+        self.gridLayout_2.addWidget(self.cmdSaveImg, 6, 5, 1, 1)
         self.tabWidget.addTab(self.tabImage, _fromUtf8(""))
         self.tabDistortion = QtGui.QWidget()
         self.tabDistortion.setObjectName(_fromUtf8("tabDistortion"))
@@ -394,8 +403,9 @@ class Ui_frmMain(object):
         self.cmdStartVideo.setText(_translate("frmMain", "&Start", None))
         self.cmdStopVideo.setText(_translate("frmMain", "S&top", None))
         self.lblConversion.setText(_translate("frmMain", "Conversion:", None))
-        self.cmdCoriander.setText(_translate("frmMain", "Start Coriander", None))
         self.cmdDelSource.setText(_translate("frmMain", "&Remove", None))
+        self.cmdCoriander.setText(_translate("frmMain", "Start Coriander", None))
+        self.cmdSaveImg.setText(_translate("frmMain", "Save &image", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabImage), _translate("frmMain", "Video", None))
         self.grbUnfisheye.setTitle(_translate("frmMain", "Distortion", None))
         self.lblPatternX.setText(_translate("frmMain", "Corners X:", None))
