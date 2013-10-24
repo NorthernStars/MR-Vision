@@ -51,7 +51,7 @@ class ImageGrabber(object):
         # add image size combobox items
         cmb = self.__gui.getObj("cmbImgSize")
         cmb.addItem("320x240")
-        cmb.addItem("640x768")
+        cmb.addItem("640x480")
         cmb.addItem("800x600")
         cmb.addItem("1024x768")
         #cmb.addItem("1280x960")        # not working with libdc1394 and avt stringray 125c
