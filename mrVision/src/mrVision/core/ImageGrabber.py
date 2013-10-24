@@ -54,7 +54,7 @@ class ImageGrabber(object):
         cmb.addItem("640x768")
         cmb.addItem("800x600")
         cmb.addItem("1024x768")
-        cmb.addItem("1280x920")
+        #cmb.addItem("1280x960")        # not working with libdc1394 and avt stringray 125c
         
         # add conversion combobox items
         cmb = self.__gui.getObj("cmbConversion")
