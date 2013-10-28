@@ -5,7 +5,6 @@ Created on 11.09.2013
 '''
 from mrLib.config.mrConfigParser import mrConfigParser
 from mrLib.networking.mrSocketManager import mrSocketManager
-from mrLib.networking import mrProtocol
 from mrLib.networking.data import mrVisionData
 from mrLib.networking.data import mrDataTags
 from mrLib.logging import mrLogger
@@ -116,14 +115,7 @@ class mrVisionModule(object):
         Starts external program coriander
         '''
         self.__imageGrabber.stopVideo()
-        start_new_thread(call, ("coriander",))
-        
-    def __createProtocolData(self, dataType=mrProtocol.PROTOCOL_TYPE_GAMEDATA):
-        '''
-        Generates protocol data package
-        @param dataType: mrProtocol.PROTOCOL_TYPE_* data type
-        '''
-        return mrProtocol.mrProtocolData( dataType, self.__visionHostName )            
+        start_new_thread(call, ("coriander",))          
         
         
     def __dataRecieved(self, socket, data):
