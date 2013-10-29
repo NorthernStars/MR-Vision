@@ -44,9 +44,9 @@ class mrVisionModule(object):
         # check for config
         if type(config) == mrConfigParser:
             self.__visionConfig = config
-            self.__visionHostName = config.getConfigValue("PROTOCOl", "visionHostname")
-            self.__visionCalibImg = config.getConfigValue("GENERAL", "calibrationImg")
-            self.__connectionTimeout = config.getConfigValueFloat("NETWORK", "timeout")
+            self.__visionHostName = self.__visionConfig.getConfigValue("PROTOCOl", "visionHostname")
+            self.__visionCalibImg = self.__visionConfig.getConfigValue("GENERAL", "calibrationImg")
+            self.__connectionTimeout = self.__visionConfig.getConfigValueFloat("NETWORK", "timeout")
         else:
             mrLogger.log( "No configuration specified", mrLogger.LOG_LEVEL['info'] ) 
         
@@ -93,7 +93,7 @@ class mrVisionModule(object):
         if self.__socketManager.isConnected():
             # send request data
             self.__socketManager.sendData("vision")            
-            mrLogger.log( "vision module started", mrLogger.LOG_LEVEL['info'] )
+            mrLogger.log( "Vision module started", mrLogger.LOG_LEVEL['info'] )
             
         else:
             msg = "Vision module could not connect to game server " + str(host)
@@ -115,10 +115,7 @@ class mrVisionModule(object):
         '''
         Data recieved listener
         '''
-        mode = data.getDataItem( self.__visionModeTag )
-        if mode != None:
-            self.__mode = mode
-            mrLogger.log( "vision module new mode: " + str(mode), mrLogger.LOG_LEVEL['debug'] )
+        print data
     
             
     def __sendVisionData(self, visionObjects=[[],[]]):
