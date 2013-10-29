@@ -279,7 +279,7 @@ class Distortion(object):
             
             # settings for automatic crop
             if self.__gui.getObj("chkCropImg").isChecked():
-                borders = int(str( self.__gui.getObj("txtCalibrationBorders").text() )) / 100.0        
+                borders = int( float(str( self.__gui.getObj("txtCalibrationBorders").text() )) ) / 100.0        
                 borderX = int(img.shape[1] * borders)
                 borderY = int(img.shape[0] * borders)
                 
