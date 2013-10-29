@@ -6,7 +6,6 @@ Created on 11.09.2013
 from mrLib.config.mrConfigParser import mrConfigParser
 from mrLib.networking.mrSocketManager import mrSocketManager
 from mrLib.networking.data import mrVisionData
-from mrLib.networking.data import mrDataTags
 from mrLib.logging import mrLogger
 
 from time import time, sleep
@@ -17,8 +16,6 @@ from core.ImageGrabber import ImageGrabber
 from core.Distortion import Distortion
 from core.Transformation import Transformation
 from core.Recognition import Recognition
-
-
 
 
 class mrVisionModule(object):
@@ -54,8 +51,7 @@ class mrVisionModule(object):
             mrLogger.log( "No configuration specified", mrLogger.LOG_LEVEL['info'] ) 
         
         # load network interface
-        #ret = self.__initNetworkInterface()
-        ret = True
+        ret = self.__initNetworkInterface()
         
         # start image processing
         if ret:
@@ -84,7 +80,7 @@ class mrVisionModule(object):
         '''
         host = self.__visionConfig.getConfigValue("NETWORK", "serverIP")
         port = self.__visionConfig.getConfigValueInt("NETWORK", "serverPort")
-        self.__socketManager = mrSocketManager(host, port)
+        self.__socketManager = mrSocketManager(host=host, port=port, server=False, udpOn=True)
         self.__socketManager.addOnDataRecievedListener( self.__dataRecieved )
         
         mrLogger.log( "vision module trying to connect to gameserver", mrLogger.LOG_LEVEL['info'] )
@@ -96,10 +92,7 @@ class mrVisionModule(object):
         
         if self.__socketManager.isConnected():
             # send request data
-            data = self.__createProtocolData()
-            data.addDataItem( mrDataTags.PROTOCOL_VERSION_TAG, self.__visionConfig.getConfigValueInt("PROTOCOL", "protocolVersion") )
-            self.__socketManager.sendData(data)
-            
+            self.__socketManager.sendData("vision")            
             mrLogger.log( "vision module started", mrLogger.LOG_LEVEL['info'] )
             
         else:
@@ -138,12 +131,10 @@ class mrVisionModule(object):
         if self.__socketManager.isConnected() and len(visionObjects) == 2:
             # send bots
             for bot in visionObjects[0]:
-#                 data = self.__createProtocolData(mrProtocol.PROTOCOL_TYPE_VISIONBOTS)
                 print bot
             
             # send objects
             for obj in visionObjects[1]:
-#                 data = self.__createProtocolData(mrProtocol.PROTOCOL_TYPE_VISIONOBJECTS)
                 print obj
                 
                 
@@ -151,9 +142,7 @@ class mrVisionModule(object):
     def __processImage(self):
         '''
         processes image recognision
-        '''
-        
-        
+        '''       
         mrLogger.log( "image processing started", mrLogger.LOG_LEVEL['info'] )
         while self.__mode != mrVisionData.VISION_MODE_TERMINATE:
             
