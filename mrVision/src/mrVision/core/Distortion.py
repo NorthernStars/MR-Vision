@@ -272,8 +272,12 @@ class Distortion(object):
         if self.__corners != None and img != None and ( self.__gui.getObj("chkCropImg").isChecked() or self.__gui.getObj("chkCropImgManual").isChecked() ) :            
             
             # default settings for manual crop
-            borderX = int( str(self.__gui.getObj("txtBorderLR").text()) ) 
-            borderY = int( str(self.__gui.getObj("txtBorderTB").text()) )
+            try:
+                borderX = int( str(self.__gui.getObj("txtBorderLR").text()) ) 
+                borderY = int( str(self.__gui.getObj("txtBorderTB").text()) )
+            except:
+                borderX = 0
+                borderY = 0
             
             xmin = (img.shape[1]-1)/2 - borderX
             xmax = (img.shape[1]-1)/2 + borderX
