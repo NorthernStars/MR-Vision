@@ -9,7 +9,7 @@ from core.imageprocessing import findChessBoardPatternSize, imageToPixmap, getCh
 from core.imageprocessing import getCalibrationData, undistortImg, getImageSizeFromCorners
 
 from numpy import float32, zeros, indices, prod
-from cv2 import drawChessboardCorners, cvtColor, COLOR_BGR2RGB
+from cv2 import drawChessboardCorners, cvtColor, COLOR_BGR2RGB, imwrite
 
 from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
@@ -75,6 +75,7 @@ class Distortion(object):
         self.__gui.connect( "cmdLoadDistortion", "clicked()", self.__loadConfiguration )
         self.__gui.connect( "chkCropImg", "toggled(bool)", self.__borderSelectionChanged )
         self.__gui.connect( "chkCropImgManual", "toggled(bool)", self.__borderSelectionChanged )
+        self.__gui.connect( "cmdSaveImgDistortion", "clicked()", self.__saveImg )
         
         # start timer
         self.__sceneImgTimer = QTimer()
@@ -101,6 +102,9 @@ class Distortion(object):
         '''
         self.__img = img
         self.__imgCounter += 1
+        
+        if not self.isCalibrating():
+            self.__imgScene = self.cropImage( self.undistortImage(self.__img) )
         
     def __borderSelectionChanged(self):
         '''
@@ -279,7 +283,11 @@ class Distortion(object):
             
             # settings for automatic crop
             if self.__gui.getObj("chkCropImg").isChecked():
-                borders = int( float(str( self.__gui.getObj("txtCalibrationBorders").text() )) ) / 100.0        
+                border = str( self.__gui.getObj("txtCalibrationBorders").text() ).replace(",", ".")
+                try:
+                    borders = int( float(border)/100.0 )
+                except:
+                    borders = 0        
                 borderX = int(img.shape[1] * borders)
                 borderY = int(img.shape[0] * borders)
                 
@@ -333,6 +341,36 @@ class Distortion(object):
             self.__scene.addPixmap( imageToPixmap(self.__imgScene) )
             self.__gview.fitInView( self.__scene.sceneRect(), Qt.KeepAspectRatio )
             self.__gview.show()
+            
+    def __saveImg(self):
+        '''
+        Saves current image
+        '''
+        if self.__imgScene != None:
+            img = self.__imgScene
+            
+            # stop video
+            active = self.__imageGrabber.isActive()
+            self.__imageGrabber.stopVideo()
+            
+            # open file dialog
+            options = copy(self.__gui.dialogOptionsDef)
+            options['type'] = self.__gui.dialogTypes['FileSave']
+            options['filetypes'] = "JPG (*.jpg)"
+            options['title'] = "Save current frame as"
+            src = str( self.__gui.dialog(options) )
+            
+            # check filepath and save
+            if len(src) > 0:
+                if not src.endswith(".jpg"):
+                    src = src+".jpg"
+                self.__gui.status( "write to " + src )
+                cvtColor(img, COLOR_BGR2RGB)
+                imwrite(src, img)
+            
+            # reset video streaming
+            if active:
+                self.__imageGrabber.startVideo()
     
     def undistortImage(self, img=None):
         '''

@@ -130,7 +130,7 @@ class ImageGrabber(object):
             if len(src) > 0:
                 if not src.endswith(".jpg"):
                     src = src+".jpg"
-                print "write to", src
+                self.__gui.status( "write to " + src )
                 cvtColor(img, COLOR_BGR2RGB)
                 imwrite(src, img)
             
