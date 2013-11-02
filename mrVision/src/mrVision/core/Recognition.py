@@ -11,6 +11,9 @@ from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
 from thread import start_new_thread
 from mrLib.networking.data import mrVisionData
+from aruco import mrMarker #@UnresolvedImport
+
+import os
 
 class Recognition(object):
     '''
@@ -32,6 +35,7 @@ class Recognition(object):
         '''
         Constructor
         '''        
+        print os.getcwd()
         self.__gui = GuiLoader()
         self.__imageGrabber = ImageGrabber()
         self.__isRecognizing = False        
