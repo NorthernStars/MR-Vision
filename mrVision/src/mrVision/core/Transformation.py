@@ -114,72 +114,75 @@ class Transformation(object):
         '''
         Preprocessing image: 
         '''
-        # blur image for better result
-        gimg = cvtColor(img, COLOR_RGB2GRAY)
-        gimg = medianBlur(gimg,5)
-        
-        # create binary image
-        gimg = threshold(gimg,115,255,THRESH_BINARY)[1]
-        
-        '''
-        Searching for circles by using Hough-Transformation:
-        Parameters used here are chosen arbitrarily!
-        '''
-        circles = HoughCircles(gimg, CV_HOUGH_GRADIENT, 1, 10, param1=100, param2=12, minRadius=9, maxRadius=35)
-        circles = around(circles).astype(int16)
-        centers = circles[0][:,:3]
-        
-        '''
-        Identifying corners of playing field by evaluating centers of circles:
-        Existence of 4 points are mandatory!
-        '''
-        vlnr = argsort(centers[:,0],)
-        
-        pts_links = centers[vlnr[:2],:]
-        pts_rechts = centers[vlnr[2:],:]
-        
-        # defining points for coordinate system
-        # left:
-        p00 = pts_links[argsort(pts_links[:,1])[0],:]
-        p01 = pts_links[argsort(pts_links[:,1])[1],:]
-        # right:
-        p10 = pts_rechts[argsort(pts_rechts[:,0])[0],:]
-        p11 = pts_rechts[argsort(pts_rechts[:,0])[1],:]
-        
-        
-        # correcting axes with aritmethic mean. p00 and p11 are set
-        # vertical:
-        a_v1 = p01-p00
-        a_v2 = p11-p10            
-        a_v = (a_v1 + a_v2)/2
-        # horizontal:
-        a_h1 = p10-p00
-        a_h2 = p11-p01
-        a_h = (a_h1 + a_h2)/2
-        
-        # correcting other corners   
-        p10c = p00 + a_h
-        p01c = p11 - a_h
-        
-        # paint lines and circles
-        circle(img,(p00[0],p00[1]),p00[2],(255,0,0),2)        
-        circle(img,(p11[0],p11[1]),p11[2],(255,0,0),2)
-        circle(img,(p10[0],p10[1]),p10[2],(255,0,0),2)
-        circle(img,(p01[0],p01[1]),p01[2],(255,0,0),2)
-        
-        line(img,(p00[0],p00[1]),(p01c[0],p01c[1]),(0,255,0),2)
-        line(img,(p00[0],p00[1]),(p10c[0],p10c[1]),(0,255,0),2)   
-        line(img,(p10c[0],p10c[1]),(p11[0],p11[1]),(0,255,0),2)
-        line(img,(p01c[0],p01c[1]),(p11[0],p11[1]),(0,255,0),2)
-        
-        self.__imgScene = img
-        
-        '''
-        Setting Offset and Basismatrix
-        '''
-        self.__offset = array([p00[0],p00[1]])
-        self.__basisMatrix = array([[a_v[0],a_h[0]],[a_v[1],a_h[1]]])
-        
+        try:
+            # blur image for better result
+            gimg = cvtColor(img, COLOR_RGB2GRAY)
+            gimg = medianBlur(gimg,5)
+            
+            # create binary image
+            gimg = threshold(gimg,115,255,THRESH_BINARY)[1]
+            
+            '''
+            Searching for circles by using Hough-Transformation:
+            Parameters used here are chosen arbitrarily!
+            '''
+            circles = HoughCircles(gimg, CV_HOUGH_GRADIENT, 1, 10, param1=100, param2=12, minRadius=9, maxRadius=35)
+            circles = around(circles).astype(int16)
+            centers = circles[0][:,:3]
+            
+            '''
+            Identifying corners of playing field by evaluating centers of circles:
+            Existence of 4 points are mandatory!
+            '''
+            vlnr = argsort(centers[:,0],)
+            
+            pts_links = centers[vlnr[:2],:]
+            pts_rechts = centers[vlnr[2:],:]
+            
+            # defining points for coordinate system
+            # left:
+            p00 = pts_links[argsort(pts_links[:,1])[0],:]
+            p01 = pts_links[argsort(pts_links[:,1])[1],:]
+            # right:
+            p10 = pts_rechts[argsort(pts_rechts[:,0])[0],:]
+            p11 = pts_rechts[argsort(pts_rechts[:,0])[1],:]
+            
+            
+            # correcting axes with aritmethic mean. p00 and p11 are set
+            # vertical:
+            a_v1 = p01-p00
+            a_v2 = p11-p10            
+            a_v = (a_v1 + a_v2)/2
+            # horizontal:
+            a_h1 = p10-p00
+            a_h2 = p11-p01
+            a_h = (a_h1 + a_h2)/2
+            
+            # correcting other corners   
+            p10c = p00 + a_h
+            p01c = p11 - a_h
+            
+            # paint lines and circles
+            circle(img,(p00[0],p00[1]),p00[2],(255,0,0),2)        
+            circle(img,(p11[0],p11[1]),p11[2],(255,0,0),2)
+            circle(img,(p10[0],p10[1]),p10[2],(255,0,0),2)
+            circle(img,(p01[0],p01[1]),p01[2],(255,0,0),2)
+            
+            line(img,(p00[0],p00[1]),(p01c[0],p01c[1]),(0,255,0),2)
+            line(img,(p00[0],p00[1]),(p10c[0],p10c[1]),(0,255,0),2)   
+            line(img,(p10c[0],p10c[1]),(p11[0],p11[1]),(0,255,0),2)
+            line(img,(p01c[0],p01c[1]),(p11[0],p11[1]),(0,255,0),2)
+            
+            self.__imgScene = img
+            
+            '''
+            Setting Offset and Basismatrix
+            '''
+            self.__offset = array([p00[0],p00[1]])
+            self.__basisMatrix = array([[a_v[0],a_h[0]],[a_v[1],a_h[1]]])
+        except:
+            print "error"
+            self.__imgScene = img
         self.__calibrating = False
         self.__gui.status("Calibration finished.")
         

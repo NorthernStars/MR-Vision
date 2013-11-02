@@ -11,7 +11,7 @@ from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
 from thread import start_new_thread
 from mrLib.networking.data import mrVisionData
-from aruco import mrMarker #@UnresolvedImport
+#from aruco import mrMarker #@UnresolvedImport
 
 import os
 
