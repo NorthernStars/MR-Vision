@@ -11,9 +11,9 @@ from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
 from thread import start_new_thread
 
-from cv2 import cvtColor, COLOR_RGB2GRAY, THRESH_BINARY, medianBlur, threshold, imshow, waitKey, destroyAllWindows, HoughCircles, circle, line
+from cv2 import cvtColor, COLOR_RGB2GRAY, THRESH_BINARY, medianBlur, threshold, HoughCircles, circle, line
 from cv2.cv import CV_HOUGH_GRADIENT
-from numpy import array, around, argsort, int16, size, mean
+from numpy import array, around, argsort, int16
 from numpy.linalg import solve
 
 class Transformation(object):

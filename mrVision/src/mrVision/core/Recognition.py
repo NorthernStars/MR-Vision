@@ -11,9 +11,15 @@ from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
 from thread import start_new_thread
 from mrLib.networking.data import mrVisionData
-#from aruco import mrMarker #@UnresolvedImport
+from aruco import mrMarker #@UnresolvedImport
 
-import os
+from cv2 import cvtColor, COLOR_RGB2GRAY
+from yaml import load, dump
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+
 
 class Recognition(object):
     '''
@@ -21,6 +27,7 @@ class Recognition(object):
     '''
     __gui = GuiLoader()
     __imageGrabber = ImageGrabber()
+    __aruco = mrMarker()
     
     __img = None
     __imgScene = None
@@ -35,9 +42,9 @@ class Recognition(object):
         '''
         Constructor
         '''        
-        print os.getcwd()
         self.__gui = GuiLoader()
         self.__imageGrabber = ImageGrabber()
+        self.__aruco = mrMarker()
         self.__isRecognizing = False        
         
         if gui != None:
@@ -130,7 +137,10 @@ class Recognition(object):
                                 PUT ALGORITHM HERE
                 ------------------------------------------------------------
                 '''
-                print "recognizing..."
+                dst = cvtColor(img, COLOR_RGB2GRAY)
+                stream = self.__aruco.detect("", True)
+                data = load(stream, Loader=Loader)
+                print data            
                 
                 self.__isRecognizing = False
     

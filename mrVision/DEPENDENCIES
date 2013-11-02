@@ -15,7 +15,10 @@ mrVision module needs the following modules
 - python			(version 2.7)
 - pyxb 				(http://sourceforge.net/projects/pyxb/)
 - python-qt4
+- python-numpy
 - python-opencv
+- python-aruco		(https://github.com/NorthernStars/python-aruco)
+- python-mrlib		(https://github.com/NorthernStars/python-mrlib)
 
 
 # -----------------------------------------------------
