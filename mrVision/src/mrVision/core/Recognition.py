@@ -11,14 +11,9 @@ from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
 from thread import start_new_thread
 from mrLib.networking.data import mrVisionData
-from aruco import mrMarker #@UnresolvedImport
 
-from cv2 import cvtColor, COLOR_RGB2GRAY
-from yaml import load, dump
-try:
-    from yaml import CLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import Loader, Dumper
+from cv2 import COLOR_RGB2GRAY, COLOR_GRAY2RGB, THRESH_BINARY
+from cv2 import cvtColor, medianBlur, threshold
 
 
 class Recognition(object):
@@ -27,7 +22,6 @@ class Recognition(object):
     '''
     __gui = GuiLoader()
     __imageGrabber = ImageGrabber()
-    __aruco = mrMarker()
     
     __img = None
     __imgScene = None
@@ -44,7 +38,6 @@ class Recognition(object):
         '''        
         self.__gui = GuiLoader()
         self.__imageGrabber = ImageGrabber()
-        self.__aruco = mrMarker()
         self.__isRecognizing = False        
         
         if gui != None:
@@ -70,7 +63,7 @@ class Recognition(object):
         # start timer
         self.__sceneImgTimer = QTimer()
         self.__sceneImgTimer.timeout.connect( self.__showImage )
-        self.__sceneImgTimer.start(100)
+        self.__sceneImgTimer.start(250)
         
         
     def setImg(self, img=None):
@@ -79,7 +72,6 @@ class Recognition(object):
         '''
         self.__img = img
         self.__imgCounter += 1
-        self.__imgScene = img
         
     def startRecognition(self):
         '''
@@ -137,11 +129,14 @@ class Recognition(object):
                                 PUT ALGORITHM HERE
                 ------------------------------------------------------------
                 '''
-                dst = cvtColor(img, COLOR_RGB2GRAY)
-                stream = self.__aruco.detect("", True)
-                data = load(stream, Loader=Loader)
-                print data            
+                gray = cvtColor(img, COLOR_RGB2GRAY)   
+                gray = medianBlur(gray,3)
+            
+                # create binary image
+                gray = threshold( gray, 50, 255, THRESH_BINARY )[1]                   
                 
+                
+                self.__imgScene = cvtColor(gray, COLOR_GRAY2RGB) 
                 self.__isRecognizing = False
     
         

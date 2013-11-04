@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Thu Oct 31 16:30:11 2013
+# Created: Mon Nov  4 17:53:58 2013
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -397,7 +397,7 @@ class Ui_frmMain(object):
         self.gridLayout.addWidget(self.scrollArea, 0, 0, 1, 1)
 
         self.retranslateUi(frmMain)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(frmMain)
 
     def retranslateUi(self, frmMain):
