@@ -26,11 +26,11 @@ def minMax(contour=[]):
             minY = p[1]
         elif maxY == None or p[1] > maxY:
             maxY = p[1]
-    
+        
     return minX, maxX, minY, maxY
 
 
-def getContours(img=None, epsilon=0.1):
+def getContours(img=None, epsilon=0.1, retr=RETR_EXTERNAL):
     '''
     Searches in image for contours
     @param img: Image to analyse (needs to be grayscale!)
@@ -40,7 +40,7 @@ def getContours(img=None, epsilon=0.1):
     retContours = []
     if img != None:
         # find contours
-        contours, hirachy = findContours( img, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE )     
+        contours, hirachy = findContours( img, retr, CHAIN_APPROX_SIMPLE )     
         
         # approximate contours
         for cnt in contours:
