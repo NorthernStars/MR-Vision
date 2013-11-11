@@ -128,31 +128,32 @@ def regMarker(fName=""):
     center = (gray.shape[1]*0.5, gray.shape[0]*0.5)
     
     for i in range(4):
+        grayCopy = copy(gray)
         angle = i*90
         rot = getRotationMatrix2D(center, angle, 1.0)
-        gray = warpAffine(gray, rot, gray.shape)  
+        grayCopy = warpAffine(grayCopy, rot, gray.shape) 
     
         # find contours
-        contours, hirachy = findContours( gray, RETR_TREE, CHAIN_APPROX_SIMPLE )
+        contours, hirachy = findContours( grayCopy, RETR_TREE, CHAIN_APPROX_SIMPLE )
         
         imgArea = gray.shape[0]*gray.shape[1]    
-        for i in range( len(contours) ):
-            cnt = contours[i]
+        for y in range( len(contours) ):
+            cnt = contours[y]
             
             if len( cnt ) > 3:            
                 # get area of contour and arc length
                 cntArea = contourArea( cnt )
                 
                 # check if contour area is big enough
-                if cntArea < 0.9*imgArea:                    
-                    shapeList[i-1].append(cnt)
+                if cntArea < 0.9*imgArea:               
+                    shapeList[i].append(cnt)
                     
     # return list of shapes
     return shapeList
 
 
 
-def getMatch(contour, refSet):
+def getMatch(contour, refSet, img=None):
     # search a reference for every contour
     y = 0
     set = copy(refSet)
@@ -181,18 +182,33 @@ def getMatch(contour, refSet):
                 
                 if None not in mmCnt and None not in mmRefCnt:
                     # get distance between shapes
-                    centerCnt = (mmCnt[1]-mmCnt[0], mmCnt[3]-mmCnt[2])
-                    centerRefCnt = (mmRefCnt[1]-mmRefCnt[0], mmRefCnt[3]-mmRefCnt[2])
+                    centerCnt = ( mmCnt[0]+(mmCnt[1]-mmCnt[0])*0.5, mmCnt[2]+(mmCnt[3]-mmCnt[2])*0.5)
+                    centerRefCnt = ( mmRefCnt[0]+(mmRefCnt[1]-mmRefCnt[0])*0.5, mmRefCnt[2]+(mmRefCnt[3]-mmRefCnt[2])*0.5 )
                     distance = (centerCnt[0]-centerRefCnt[0], centerCnt[1]-centerRefCnt[1])
                     distance = sqrt( distance[0]*distance[0] + distance[1]*distance[1] )
                     
                     # calculate current match
+#                     print "match", i, ",", y, ":", match, "distance:", distance, "complete:", match*distance
                     match *= distance
                     
                     # add match
                     matches.append( [i, y, match] )
+                     
+                    # show contours
+#                     if img != None:                         
+#                         dst = copy(img)
+#                         drawContours(dst, [cnt], -1, (255,0,0))
+#                         drawContours(dst, [refCnt], -1, (0,0,255))
+#                         imshow("match", dst)
+#                         waitKey(1)
+
+    # sort matches
+    matches = sorted(matches, key=itemgetter(2))
         
     # return best match
+#     print "matches"
+#     for m in matches:
+#         print "\t", m
     return calcMatch(matches)
 
 
@@ -210,6 +226,7 @@ def calcMatch(matches=[]):
     # search through all matches
     for match in matches:        
         if match[0] not in excCnt and match[1] not in excRef:
+#             print "\ttake", match[0], ",", match[1]
             excCnt.append(match[0])
             excRef.append(match[1])
             count += 1
@@ -222,6 +239,29 @@ def calcMatch(matches=[]):
     if retMatch != -1 and count > 0:
         retMatch /= count;
         
-    return retMatch
-        
+#     print "\tfound", count, "from", len(getIdsFromMatches(matches))
+    
+    lIDs = len( getIdsFromMatches(matches) )
+    lRefIDs = len( getIdsFromMatches(matches, 1) )
+    
+    if count == lIDs and lIDs == lRefIDs:
+#         print "\tchoose", retMatch
+        return retMatch
+    
+    return -1
+
+
+def getIdsFromMatches(matches=[], idx=0):
+    '''
+    Returns Ids for different contours from matches
+    @param matches: List of matches
+    @param idx: Index number of match entries to search in
+    @return: List of different contour IDs
+    '''
+    ids = []
+    for m in matches:
+        if m[idx] not in ids:
+            ids.append(m[idx])
+            
+    return ids        
     

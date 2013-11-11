@@ -6,11 +6,14 @@ Created on 11.09.2013
 from mrLib.config.mrConfigParser import mrConfigParser
 from mrLib.networking.mrSocketManager import mrSocketManager
 from mrLib.networking.data import mrVisionData
+from mrLib.networking.data.positiondata import positionDataPackage, positionObjectBot, positionObjectRectangle
+from mrLib.networking.data.changevisionmodedata import CreateFromDocument, changeVisionMode
 from mrLib.logging import mrLogger
 
 from time import time, sleep
 from thread import start_new_thread
 from subprocess import call
+
 from gui.GuiLoader import GuiLoader
 from core.ImageGrabber import ImageGrabber
 from core.Distortion import Distortion
@@ -27,6 +30,9 @@ class mrVisionModule(object):
     __visionCalibImg = "img/calibration.jpg"
     __gui = GuiLoader()
     
+    __serverName = None
+    __serverNameAck = False
+    
     __imageGrabber = ImageGrabber()
     __distortion = Distortion()
     __transformation = Transformation()
@@ -35,17 +41,20 @@ class mrVisionModule(object):
     __socketManager = None
     __mode = mrVisionData.VISION_MODE_CALIBRATE_DIST
     __connectionTimeout = 30.0
+    __moduleName = None
 
     def __init__(self, config=None, guiloader=None):
         '''
         Constructor
         '''
+        self.__gui = GuiLoader()
         
         # check for config
         if type(config) == mrConfigParser:
             self.__visionConfig = config
             self.__visionHostName = self.__visionConfig.getConfigValue("PROTOCOl", "visionHostname")
             self.__visionCalibImg = self.__visionConfig.getConfigValue("GENERAL", "calibrationImg")
+            self.__moduleName = self.__visionConfig.getConfigValue("GENERAL", "moduleName")
             self.__connectionTimeout = self.__visionConfig.getConfigValueFloat("NETWORK", "timeout")
         else:
             mrLogger.log( "No configuration specified", mrLogger.LOG_LEVEL['info'] ) 
@@ -80,8 +89,9 @@ class mrVisionModule(object):
         '''
         host = self.__visionConfig.getConfigValue("NETWORK", "serverIP")
         port = self.__visionConfig.getConfigValueInt("NETWORK", "serverPort")
-        self.__socketManager = mrSocketManager(host=host, port=port, server=False, udpOn=True)
+        self.__socketManager = mrSocketManager(host=host, port=port, server=True, udpOn=True, useHandshake=True, name=str(self.__moduleName))
         self.__socketManager.addOnDataRecievedListener( self.__dataRecieved )
+        self.__socketManager.addOnClientAddedListener( self.__clientAdded )
         
         mrLogger.log( "vision module trying to connect to gameserver", mrLogger.LOG_LEVEL['info'] )
         
@@ -91,12 +101,10 @@ class mrVisionModule(object):
             pass
         
         if self.__socketManager.isConnected():
-            # send request data
-            self.__socketManager.sendData("vision")            
             mrLogger.log( "Vision module started", mrLogger.LOG_LEVEL['info'] )
             
         else:
-            msg = "Vision module could not connect to game server " + str(host)
+            msg = "Vision module could establish server at " + str(host)
             msg += " on port " + str(port)
             mrLogger.log( msg, mrLogger.LOG_LEVEL['error'] )
             return False
@@ -110,12 +118,33 @@ class mrVisionModule(object):
         self.__imageGrabber.stopVideo()
         start_new_thread(call, ("coriander",))          
         
+    def __clientAdded(self, clientdata):
+        '''
+        Client added listener
+        '''
+        msg = "Client " + str(clientdata)
+        msg += " added"
+        mrLogger.log( msg, mrLogger.LOG_LEVEL['info'] )
         
-    def __dataRecieved(self, socket, data):
+    def __dataRecieved(self, socket, addr, data):
         '''
         Data recieved listener
         '''
-        print data
+        print "recieved:", data
+        try:
+            dom = CreateFromDocument(data)
+            if type(dom) == changeVisionMode:
+                assert isinstance(dom, changeVisionMode)
+                self.__mode = str(dom.visionmode)
+                
+                mode = changeVisionMode()
+                mode.visionmode = self.__mode
+                self.__socketManager.sendData( mode.toxml("utf-8", element_name="changevisionmode") )
+                mrLogger.logInfo( "Vision mode set to: " + self.__mode )
+                
+        except:
+            pass
+                     
     
             
     def __sendVisionData(self, visionObjects=[[],[]]):
@@ -134,15 +163,55 @@ class mrVisionModule(object):
             for obj in visionObjects[1]:
                 print obj
                 
+        
+        # test
+        b = positionObjectBot()
+        b.angle = 0.0
+        b.id = 1
+        b.name = "paul"
+        b.color.append(0.0)
+        b.color.append(255.0)
+        b.color.append(0.0)
+        b.location.append(0.5)
+        b.location.append(0.5)
+        b.objecttype = mrVisionData.VISION_OBJ_BOT
+        
+        r = positionObjectRectangle()
+        r.angle = 90.31746
+        r.color.append(255.0)
+        r.color.append(255.0)
+        r.color.append(0.0)
+        r.id = 512
+        r.location.append(0.5)
+        r.location.append(0.7)
+        r.objecttype = mrVisionData.VISION_OBJ_RECT
+        r.name = "rechtecki"
+        r.size.append(0.87665)
+        r.size.append(0.2648)
+        
+        
+        d = positionDataPackage()
+        d.visionmode = self.__mode
+        d.visionobjects.append(b)
+        d.visionobjects.append(r)
+        
+        self.__socketManager.sendData( d.toxml("utf-8", "positiondatapackage") )
                 
+    def __setMode(self, mode=mrVisionData.VISION_MODE_NONE):
+        '''
+        Sets vision mode
+        @param mode: mrVisionData mode
+        '''
+        self.__mode = mode
                 
     def __processImage(self):
         '''
         processes image recognision
         '''       
-        mrLogger.log( "image processing started", mrLogger.LOG_LEVEL['info'] )
+        mrLogger.log( "Main loop started", mrLogger.LOG_LEVEL['info'] )
+        
         while self.__mode != mrVisionData.VISION_MODE_TERMINATE:
-            
+            #print "mode:", self.__mode
             # get image
             img = self.__imageGrabber.getImage()
             
@@ -166,6 +235,8 @@ class mrVisionModule(object):
                 if self.__imageGrabber.isActive():
                     objs = self.__recognition.getVisionObjects()
                     print "objects:", objs
+                
+                self.__sendVisionData()
             
             # CALIBRATE CHESSBOARD
             elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_DIST:
@@ -174,7 +245,7 @@ class mrVisionModule(object):
                     while self.__distortion.isCalibrating():
                         pass
                     
-                self.__mode = mrVisionData.VISION_MODE_NONE
+                self.__setMode(mrVisionData.VISION_MODE_NONE)
             
             # CALIBRATE TRANSFORMATIONEN
             elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_TRANSF:
@@ -184,11 +255,11 @@ class mrVisionModule(object):
                 while self.__transformation.isCalibrating():
                     pass
                 
-                self.__mode = mrVisionData.VISION_MODE_NONE
+                self.__setMode(mrVisionData.VISION_MODE_NONE)
                 
-            sleep(0.5)
+            sleep(0.1)
             
         # exit program
-        mrLogger.log( "image processing stopped", mrLogger.LOG_LEVEL['info'] )
+        mrLogger.log( "Main loop stopped", mrLogger.LOG_LEVEL['info'] )
         self.__socketManager.stopSocket()
         exit()
