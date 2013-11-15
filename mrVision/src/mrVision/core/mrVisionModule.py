@@ -176,7 +176,6 @@ class mrVisionModule(object):
                     print obj
                     
             # send datapackage
-            print "sending", data.toxml("utf-8", element_name="positiondatapackage")
             self.__socketManager.sendData( data.toxml("utf-8", element_name="positiondatapackage") )
                 
     def __setMode(self, mode=mrVisionData.VISION_MODE_NONE):
@@ -220,6 +219,9 @@ class mrVisionModule(object):
                     # get bots and rectangles
                     obj = {'bots': self.__recognition.getBots(),
                            'rectangles': self.__recognition.getRectangles()}
+                    
+                    # transformate objects
+                    self.__transformation.transformObjects( obj['bots'] )
                     
                     # send vision objects
                     self.__sendVisionData(obj)

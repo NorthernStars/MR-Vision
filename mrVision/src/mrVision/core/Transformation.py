@@ -210,11 +210,8 @@ class Transformation(object):
         @param objs: List of vision objects
         @return: List of transformed vision objects
         '''
-        retObjs = []
         for obj in objs:
-            print obj
-            
-        return retObjs
+            obj['center'] = self.transformatePoint( array(obj['center']) )
         
     def __showImage(self):
         '''

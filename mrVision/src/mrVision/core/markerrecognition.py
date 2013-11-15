@@ -283,6 +283,7 @@ def calcDistanceMatch(matchSet, contour, distanceSet):
 def detectMarker(contour, referenceMarkers, markerSize):
     '''
     Detects markers from contours
+    @return: List of {'id': idKey, 'match': match, 'angle': angle, 'center': (-1, -1)}
     '''
     idList = []
     
