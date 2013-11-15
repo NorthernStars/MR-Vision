@@ -40,7 +40,7 @@ class mrVisionModule(object):
     __recognition = Recognition()
     
     __socketManager = None
-    __mode = mrVisionData.VISION_MODE_STREAM_BOTS
+    __mode = mrVisionData.VISION_MODE_NONE
     __connectionTimeout = 30.0
     __moduleName = None
 

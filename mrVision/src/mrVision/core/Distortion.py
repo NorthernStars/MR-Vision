@@ -9,7 +9,7 @@ from core.imageprocessing import findChessBoardPatternSize, imageToPixmap, getCh
 from core.imageprocessing import getCalibrationData, undistortImg, getImageSizeFromCorners
 
 from numpy import float32, zeros, indices, prod
-from cv2 import drawChessboardCorners, cvtColor, COLOR_BGR2RGB, imwrite
+from cv2 import drawChessboardCorners, cvtColor, COLOR_BGR2RGB, COLOR_RGB2GRAY, COLOR_GRAY2RGB, imwrite, threshold, THRESH_BINARY
 
 from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
@@ -240,9 +240,18 @@ class Distortion(object):
         while frames < n and tries < 10:
             img = self.__img
             
+            img = cvtColor(img, COLOR_RGB2GRAY)
+            img = threshold(img, 40, 255, THRESH_BINARY)[1]
+            img = cvtColor(img, COLOR_GRAY2RGB)
+            self.__imgScene = img
+            from time import sleep
+            sleep(1)
+            
             if lastCount != self.__imgCounter:
-                # get corners                
+                # get corners   
+                print "getchessboardcorners"             
                 found, corners = getChessBoardCorners( img, pattern_size )
+                print "found", found
                 
                 # check if corners found
                 if found:
