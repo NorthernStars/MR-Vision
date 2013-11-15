@@ -6,7 +6,7 @@ Created on 11.09.2013
 from mrLib.config.mrConfigParser import mrConfigParser
 from mrLib.networking.mrSocketManager import mrSocketManager
 from mrLib.networking.data import mrVisionData
-from mrLib.networking.data.positiondata import positionDataPackage, positionObjectBot, positionObjectRectangle
+from mrLib.networking.data.positiondata import positionDataPackage, positionObjectBot
 from mrLib.networking.data.changevisionmodedata import CreateFromDocument, changeVisionMode
 from mrLib.logging import mrLogger
 
@@ -19,6 +19,7 @@ from core.ImageGrabber import ImageGrabber
 from core.Distortion import Distortion
 from core.Transformation import Transformation
 from core.Recognition import Recognition
+from mrLib.networking.data.mrVisionData import VISION_MODE_STREAM_BOTS, VISION_MODE_STREAM_OBJ, VISION_MODE_STREAM_ALL
 
 
 class mrVisionModule(object):
@@ -39,7 +40,7 @@ class mrVisionModule(object):
     __recognition = Recognition()
     
     __socketManager = None
-    __mode = mrVisionData.VISION_MODE_CALIBRATE_DIST
+    __mode = mrVisionData.VISION_MODE_STREAM_BOTS
     __connectionTimeout = 30.0
     __moduleName = None
 
@@ -118,11 +119,11 @@ class mrVisionModule(object):
         self.__imageGrabber.stopVideo()
         start_new_thread(call, ("coriander",))          
         
-    def __clientAdded(self, clientdata):
+    def __clientAdded(self, servername, clientdata):
         '''
         Client added listener
         '''
-        msg = "Client " + str(clientdata)
+        msg = "Client " + servername + " " + str(clientdata)
         msg += " added"
         mrLogger.log( msg, mrLogger.LOG_LEVEL['info'] )
         
@@ -147,55 +148,36 @@ class mrVisionModule(object):
                      
     
             
-    def __sendVisionData(self, visionObjects=[[],[]]):
+    def __sendVisionData(self, visionObjects={'bots': [], 'rectangles': []}):
         '''
         Sends list of recognized objects
         @param visionObjects: Twoi dimensional list with
-        visionObjects[0] as list of bots
-        visionObjects[1] as list of objects  
+        visionObjects['bots'] as list of bots
+        visionObjects['rectangles'] as list of objects  
         '''
         if self.__socketManager.isConnected() and len(visionObjects) == 2:
-            # send bots
-            for bot in visionObjects[0]:
-                print bot
+            # create data package
+            data = positionDataPackage()
+            data.visionmode = self.__mode
             
-            # send objects
-            for obj in visionObjects[1]:
-                print obj
-                
-        
-        # test
-        b = positionObjectBot()
-        b.angle = 0.0
-        b.id = 1
-        b.name = "paul"
-        b.color.append(0.0)
-        b.color.append(255.0)
-        b.color.append(0.0)
-        b.location.append(0.5)
-        b.location.append(0.5)
-        b.objecttype = mrVisionData.VISION_OBJ_BOT
-        
-        r = positionObjectRectangle()
-        r.angle = 90.31746
-        r.color.append(255.0)
-        r.color.append(255.0)
-        r.color.append(0.0)
-        r.id = 512
-        r.location.append(0.5)
-        r.location.append(0.7)
-        r.objecttype = mrVisionData.VISION_OBJ_RECT
-        r.name = "rechtecki"
-        r.size.append(0.87665)
-        r.size.append(0.2648)
-        
-        
-        d = positionDataPackage()
-        d.visionmode = self.__mode
-        d.visionobjects.append(b)
-        d.visionobjects.append(r)
-        
-        self.__socketManager.sendData( d.toxml("utf-8", "positiondatapackage") )
+            # add bots to datapackage
+            if self.__mode == VISION_MODE_STREAM_BOTS or self.__mode in VISION_MODE_STREAM_ALL:
+                for bot in visionObjects['bots']:
+                    b = positionObjectBot()
+                    b.id = bot['id']
+                    b.location.append( bot['center'][0] )
+                    b.location.append( bot['center'][1] )
+                    b.angle = bot['angle']
+                    data.append(b)
+            
+            # add rectangles to datapackage
+            if self.__mode == VISION_MODE_STREAM_OBJ or self.__mode in VISION_MODE_STREAM_ALL:
+                for obj in visionObjects['rectangles']:
+                    print obj
+                    
+            # send datapackage
+            print "sending", data.toxml("utf-8", element_name="positiondatapackage")
+            self.__socketManager.sendData( data.toxml("utf-8", element_name="positiondatapackage") )
                 
     def __setMode(self, mode=mrVisionData.VISION_MODE_NONE):
         '''
@@ -231,12 +213,16 @@ class mrVisionModule(object):
             
             # STREAM IMAGES
             if self.__mode in mrVisionData.VISION_STREAMING_MODES:
-                # TO-DO: image processing
                 if self.__imageGrabber.isActive():
-                    objs = self.__recognition.getVisionObjects()
-                    print "objects:", objs
-                
-                self.__sendVisionData()
+                    # recognize objects
+                    self.__recognition.recognize()
+                    
+                    # get bots and rectangles
+                    obj = {'bots': self.__recognition.getBots(),
+                           'rectangles': self.__recognition.getRectangles()}
+                    
+                    # send vision objects
+                    self.__sendVisionData(obj)
             
             # CALIBRATE CHESSBOARD
             elif self.__mode == mrVisionData.VISION_MODE_CALIBRATE_DIST:
