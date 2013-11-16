@@ -8,13 +8,12 @@ from core.visionModul import visionModule
 from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer
 
-from markerrecognition import getReferenceMarker, getContours, sortContour, minMax, detectMarker
+from markerrecognition import getReferenceMarker, getContours, minMax, detectMarker, getBoundingRect, getAngleOfVector, rotateVector, getVectorFromPoint
 
-from cv2 import COLOR_RGB2GRAY, COLOR_GRAY2RGB, THRESH_BINARY
-from cv2 import cvtColor, threshold, Canny, drawContours, contourArea, resize, getRotationMatrix2D, warpAffine
+from cv2 import COLOR_RGB2GRAY, COLOR_GRAY2RGB, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, RETR_LIST
+from cv2 import cvtColor, threshold, Canny, drawContours, contourArea, resize, getRotationMatrix2D, warpAffine, adaptiveThreshold
 
 from copy import copy
-from math import degrees, acos, sqrt
 
 
 class Recognition(visionModule):
@@ -123,12 +122,14 @@ class Recognition(visionModule):
         
         # get data
         self.__markerContours = []
-        th = self._gui.getObj("sliderThesholdMarkerArea").value()
-        cannyDown = self._gui.getObj("sliderMarkerAreaCannyDown").value()
-        cannyUp = self._gui.getObj("sliderMarkerAreaCannyUp").value()
+        blocksize = int( str(self._gui.getObj("txtMarkerAreaBlockSize").text()) )
         epsilon = float( str(self._gui.getObj("txtMarkerAreaEpsilon").text()) )
         areaMin = float( str(self._gui.getObj("txtMarkerAreaMin").text()) )/100.0
         areaMax = float( str(self._gui.getObj("txtMarkerAreaMax").text()) )/100.0
+        
+        # check correct blocksize
+        if blocksize%2 == 0:
+            blocksize -= 1
                 
         # get current image and convert
         gray = copy(self._img)        
@@ -136,25 +137,24 @@ class Recognition(visionModule):
         imgArea = gray.shape[0]*gray.shape[1]
         
         # threshold and canny
-        gray = threshold( gray, th, 255, THRESH_BINARY )[1]
-        
-        self.__imgThArea = copy( gray )
-        gray = Canny( gray, cannyDown, cannyUp )
+        gray = adaptiveThreshold( gray, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, blocksize, 0 )
+        colorImg = cvtColor(gray, COLOR_GRAY2RGB)
         
         # get contours
-        contours = getContours( copy(gray), epsilon, enConvexHull=False)
+        contours = getContours( gray, epsilon, retr=RETR_LIST, enConvexHull=False)
         
         # add contours with correct area size
         for cnt in contours:
             cntArea = contourArea( cnt )
+            cnt = getBoundingRect(cnt)
             
             if len(cnt) == 4 and cntArea > imgArea*areaMin and cntArea < imgArea*areaMax:
+#             if cntArea > imgArea*areaMin and cntArea < imgArea*areaMax:
                 self.__markerContours.append( cnt )
         
         # draw contours
-        canny = cvtColor(gray, COLOR_GRAY2RGB)
-        drawContours( canny, self.__markerContours, -1, (255,0,0), -1 )
-        self.__imgCannyArea = canny
+        drawContours( colorImg, self.__markerContours, -1, (255,0,0), -1 )
+        self.__imgThArea = colorImg
         
         
     def __recognizeMarkerIDs(self):
@@ -180,33 +180,80 @@ class Recognition(visionModule):
         
         # touch every marker
         for marker in self.__markerContours:
-            # sort marker and get vectors
-            marker, vec = sortContour(marker)
             
-            # sliceImg marker
-            minX, maxX, minY, maxY = minMax(marker)    
-            if None in [minX, maxX, minY, maxY]:
-                continue
-            markerCenter = (maxX-minX, maxY-minY)
+            # get minmax of marker and calculate center4
+            minX, maxX, minY, maxY = minMax(marker)
+            markerCenter = ( minX+(maxX-minX), minY+(maxY-minY) )
             
+            # slice and resize marker
             sliceImg = gray[minY+contourPadding:maxY-contourPadding, minX+contourPadding:maxX-contourPadding]
             sliceImg = resize( sliceImg, self.__markerSize )
             
-            # rotate marker
-            v0 = (vec[0][0], vec[0][1])
-            v1 = (vec[1][0], vec[1][1])
-            v = (v1[0]-v0[0], v1[1]-v0[1])
-            angle = round( 90-degrees( acos( v[1]/sqrt(v[0]*v[0] + v[1]*v[1]) ) ), 1)
+            # threshold and canny
+            imgTh = threshold( sliceImg, th, 255, THRESH_BINARY )[1]                
+            canny = Canny( imgTh, cannyDown, cannyUp )
+            self.__imgThID = imgTh
             
+            # get contours again
+            contours = getContours( canny, epsilon, enConvexHull=False)
+
+            
+            # get first big contour
+            imgArea = sliceImg.shape[0]*sliceImg.shape[1]*0.25
+            contour = None
+            for cnt in contours:
+                cntArea = contourArea(cnt)
+                if cntArea > imgArea:
+                    contour = cnt
+                    break;
+                    
+            if contour == None:
+                continue
+            
+            # get bounding rectangle
+            bb = getBoundingRect(contour)
+        
+            # get marker vectors
+            v0 = bb[0]
+            v3 = bb[3]
+            v = (v3[0]-v0[0], v3[1]-v0[1])
+            
+            if v[0] == 0 and v[1] == 0:
+                continue
+            
+            # get marker rotation
+            angle = round( getAngleOfVector(v), 2 )  
             center = ( sliceImg.shape[1]*0.5, sliceImg.shape[0]*0.5 )
             
-            rot = getRotationMatrix2D( center, angle, 1.0 )
-            sliceImg = warpAffine( sliceImg, rot, sliceImg.shape, borderValue=255 )
+            # transformate bounding box to center of image
+            bb[0] = getVectorFromPoint(bb[0], center)
+            bb[1] = getVectorFromPoint(bb[1], center)
+            bb[2] = getVectorFromPoint(bb[2], center)
+            bb[3] = getVectorFromPoint(bb[3], center)
             
-            # threshold and canny
-            sliceImg = threshold( sliceImg, th, 255, THRESH_BINARY )[1]            
-            self.__imgThID = sliceImg            
-            sliceImg = Canny( sliceImg, cannyDown, cannyUp )
+            # rotate marker
+            rot = getRotationMatrix2D( center, angle, 1.0 )
+            sliceImg = warpAffine( sliceImg, rot, sliceImg.shape, borderValue=0 )
+            
+            # rotate bounding box
+            angle *= -1
+            bb[0] = rotateVector(bb[0], getAngleOfVector(bb[0])+angle)
+            bb[1] = rotateVector(bb[1], getAngleOfVector(bb[1])+angle)
+            bb[2] = rotateVector(bb[2], getAngleOfVector(bb[2])+angle)
+            bb[3] = rotateVector(bb[3], getAngleOfVector(bb[3])+angle)
+            
+            # transformate bounding box to origin of image
+            bb[0] = getVectorFromPoint(center, bb[0])
+            bb[1] = getVectorFromPoint(center, bb[1])
+            bb[2] = getVectorFromPoint(center, bb[2])
+            bb[3] = getVectorFromPoint(center, bb[3])
+            
+            sliceImg = cvtColor(sliceImg, COLOR_GRAY2RGB)
+            drawContours(sliceImg, [bb], -1, (255,0,0))
+            
+            # rotate bounding box            
+            self.__imgCannyID = sliceImg
+            continue
             
             
             # get marker contour again
@@ -240,8 +287,7 @@ class Recognition(visionModule):
             
             # show contours
             sliceImg = cvtColor(sliceImg, COLOR_GRAY2RGB)            
-            drawContours(sliceImg, contour, -1, (255,0,0))
-            
+            drawContours(sliceImg, contour, -1, (255,0,0))            
             
             self.__imgCannyID = sliceImg
         
@@ -280,8 +326,7 @@ class Recognition(visionModule):
         '''
         Shows image
         '''
-        self._updateScene( self.__gviewThArea, self.__sceneThArea, self.__imgThArea, convert=True )
-        self._updateScene( self.__gviewCannyArea, self.__sceneCannyArea, self.__imgCannyArea )
+        self._updateScene( self.__gviewThArea, self.__sceneThArea, self.__imgThArea )
         self._updateScene( self.__gviewThID, self.__sceneThID, self.__imgThID, convert=True )
         self._updateScene( self.__gviewCannyID, self.__sceneCannyID, self.__imgCannyID, convert=False )
         

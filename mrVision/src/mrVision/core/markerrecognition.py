@@ -5,7 +5,7 @@ Created on 13.11.2013
 '''
 from os import listdir, getcwd
 from os.path import isfile
-from math import sqrt, atan2
+from math import sqrt, atan2, degrees, radians, acos, cos, sin
 from copy import copy
 from operator import itemgetter
 
@@ -13,6 +13,7 @@ from cv2 import imread, cvtColor, threshold, getRotationMatrix2D, warpAffine, fi
 from cv2 import arcLength, approxPolyDP, matchShapes, convexHull
 from cv2 import COLOR_RGB2GRAY, THRESH_BINARY, RETR_TREE, CHAIN_APPROX_SIMPLE, RETR_EXTERNAL
 from cv2.cv import CV_CONTOURS_MATCH_I3
+from numpy import array
 
 def getReferenceMarker(path=None):
     '''
@@ -128,6 +129,27 @@ def getContours(img=None, epsilon=0.1, retr=RETR_EXTERNAL, enConvexHull=False):
     
     return retContours
 
+def getBoundingRect(cnt = []):
+    '''
+    @return: Bounding contour of contour
+    '''
+    leftmost = array(cnt[cnt[:,:,0].argmin()][0])
+    rightmost = array(cnt[cnt[:,:,0].argmax()][0])
+    topmost = array(cnt[cnt[:,:,1].argmin()][0])
+    bottommost = array(cnt[cnt[:,:,1].argmax()][0])
+    
+    return array( [leftmost, bottommost, rightmost, topmost] )
+    
+
+def getVectorFromPoint(vec, point):
+    '''
+    @return: New vector from point to vector
+    '''
+    v = []
+    v.append( vec[0]-point[0] )
+    v.append( vec[1]-point[1] )
+    return v
+
 
 def sortContour(contour=[]):
     '''
@@ -182,13 +204,26 @@ def minMax(contour=[]):
     @param contour: Contour
     @return: minX, maxX, minY, maxY
     '''
-    minX = tuple(contour[contour[:,:,0].argmin()][0])[0]
-    maxX = tuple(contour[contour[:,:,0].argmax()][0])[0]
-    minY = tuple(contour[contour[:,:,1].argmin()][0])[1]
-    maxY = tuple(contour[contour[:,:,1].argmax()][0])[1]
+    minX = contour[0][0]
+    maxX = contour[2][0]
+    minY = contour[3][1]
+    maxY = contour[1][1]
         
     return minX, maxX, minY, maxY
 
+def getAngleOfVector(vec):
+    '''
+    Returns rotation of vector to y axis
+    '''
+    return degrees( atan2(vec[1], vec[0]) )
+
+def rotateVector(vec, angle):
+    '''
+    @return: Vector rotated by angle
+    '''
+    angle = radians(angle)
+    r = sqrt(vec[0]*vec[0] + vec[1]*vec[1])
+    return array( [r*cos(angle), r*sin(angle)] )
 
 def getMatch(contour, refSet):
     # search a reference for every contour
