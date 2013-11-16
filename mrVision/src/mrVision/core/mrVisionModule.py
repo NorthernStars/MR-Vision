@@ -29,12 +29,12 @@ class mrVisionModule(object):
     __visionConfig = mrConfigParser()
     __visionHostName = "vision"
     __visionCalibImg = "img/calibration.jpg"
-    __gui = GuiLoader()
+    _gui = GuiLoader()
     
     __serverName = None
     __serverNameAck = False
     
-    __imageGrabber = ImageGrabber()
+    _imageGrabber = ImageGrabber()
     __distortion = Distortion()
     __transformation = Transformation()
     __recognition = Recognition()
@@ -48,7 +48,7 @@ class mrVisionModule(object):
         '''
         Constructor
         '''
-        self.__gui = GuiLoader()
+        self._gui = GuiLoader()
         
         # check for config
         if type(config) == mrConfigParser:
@@ -70,11 +70,11 @@ class mrVisionModule(object):
         
         # start gui
         if guiloader != None:
-            self.__gui = guiloader 
-            self.__imageGrabber = ImageGrabber(self.__gui)
-            self.__distortion = Distortion(self.__gui, self.__imageGrabber)
-            self.__transformation = Transformation(self.__gui, self.__imageGrabber)
-            self.__recognition = Recognition(self.__gui, self.__imageGrabber)
+            self._gui = guiloader 
+            self._imageGrabber = ImageGrabber(self._gui)
+            self.__distortion = Distortion(self._gui, self._imageGrabber)
+            self.__transformation = Transformation(self._gui, self._imageGrabber)
+            self.__recognition = Recognition(self._gui, self._imageGrabber)
             
             self.__initGui()
             
@@ -82,7 +82,7 @@ class mrVisionModule(object):
         '''
         Initiates gui
         '''
-        self.__gui.connect( "cmdCoriander", "clicked()", self.__startCoriander )
+        self._gui.connect( "cmdCoriander", "clicked()", self.__startCoriander )
         
     def __initNetworkInterface(self):
         '''
@@ -116,7 +116,7 @@ class mrVisionModule(object):
         '''
         Starts external program coriander
         '''
-        self.__imageGrabber.stopVideo()
+        self._imageGrabber.stopVideo()
         start_new_thread(call, ("coriander",))          
         
     def __clientAdded(self, servername, clientdata):
@@ -194,7 +194,7 @@ class mrVisionModule(object):
         while self.__mode != mrVisionData.VISION_MODE_TERMINATE:
             #print "mode:", self.__mode
             # get image
-            img = self.__imageGrabber.getImage()
+            img = self._imageGrabber.getImage()
             
             # sets image to distortion module
             self.__distortion.setImg(img)
@@ -212,7 +212,7 @@ class mrVisionModule(object):
             
             # STREAM IMAGES
             if self.__mode in mrVisionData.VISION_STREAMING_MODES:
-                if self.__imageGrabber.isActive():
+                if self._imageGrabber.isActive():
                     # recognize objects
                     self.__recognition.recognize()
                     

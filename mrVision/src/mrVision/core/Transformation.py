@@ -3,12 +3,10 @@ Created on 22.10.2013
 
 @author: northernstars
 '''
-from gui.GuiLoader import GuiLoader
-from core.ImageGrabber import ImageGrabber
-from core.imageprocessing import imageToPixmap
+from core.visionModul import visionModule
 
 from PyQt4.QtGui import QGraphicsScene
-from PyQt4.QtCore import QTimer, Qt
+from PyQt4.QtCore import QTimer
 from thread import start_new_thread
 
 from cv2 import cvtColor, COLOR_RGB2GRAY, THRESH_BINARY, medianBlur, threshold, HoughCircles, circle, line
@@ -16,16 +14,12 @@ from cv2.cv import CV_HOUGH_GRADIENT
 from numpy import array, around, argsort, int16
 from numpy.linalg import solve
 
-class Transformation(object):
+class Transformation(visionModule):
     '''
     classdocs
-    '''
-    __gui = GuiLoader()
-    __imageGrabber = ImageGrabber()
-    
-    __img = None
+    '''    
     __imgScene = None
-    __imgCounter = 0
+    __imgSceneTh = None
     
     __calibrated = False
     __calibrating = False
@@ -37,35 +31,34 @@ class Transformation(object):
         '''
         Constructor
         '''        
-        self.__gui = GuiLoader()
-        self.__imageGrabber = ImageGrabber()        
+        super(Transformation, self).__init__(gui=gui, imageGrabber=imageGrabber)
         self.__calibrated = False
         self.__calibrating = False
         self.__basisMatrix = array([[1,0],[0,1]])
         self.__offset = array([0,0])
         
-        if gui != None:
-            self.__gui = gui
+        if self._gui != None:
             self.__initGui()
-            
-        if imageGrabber != None:
-            self.__imageGrabber = imageGrabber
         
     def __initGui(self):
         '''
         Initiates gui
         '''
         # initiate scene
-        self.__gview = self.__gui.getObj("imgTransformation")
+        self.__gview = self._gui.getObj("imgTransformation")
         self.__scene = QGraphicsScene()
         self.__gview.setScene(self.__scene)
         
+        self.__gviewTh = self._gui.getObj("imgTransformationThreshold")
+        self.__sceneTh = QGraphicsScene()
+        self.__gviewTh.setScene(self.__sceneTh)
+        
         # create listeners
-        self.__gui.connect( "cmdCalibrateTransformation", "clicked()", self.__calibrateTransformation )
+        self._gui.connect( "cmdCalibrateTransformation", "clicked()", self.__calibrateTransformation )
         
         # start timer
         self.__sceneImgTimer = QTimer()
-        self.__sceneImgTimer.timeout.connect( self.__showImage )
+        self.__sceneImgTimer.timeout.connect( self._showImage )
         self.__sceneImgTimer.start(100)  
         
     def isCalibrated(self):
@@ -80,14 +73,6 @@ class Transformation(object):
         '''
         return self.__calibrating
         
-        
-    def setImg(self, img=None):
-        '''
-        Sets current image
-        '''
-        self.__img = img
-        self.__imgCounter += 1
-        
     def startCalibration(self):
         '''
         Starts calibration of transformation
@@ -99,34 +84,38 @@ class Transformation(object):
         '''
         Calculates transformation values
         '''
-        if self.__img == None:
-            return
+        if self._img == None:
+            return                
         
-        self.__gui.status("Calibrating transformation...")
+        self._gui.status("Calibrating transformation...")
         self.__calibrating = True
-        img = self.__img
-        
+        img = self._img
+
         '''
-        ------------------------------------------------------------
-                        PUT ALGORITHM HERE
-        ------------------------------------------------------------
+        Preprocessing image:
         '''
-        '''
-        Preprocessing image: 
-        '''
-        try:
+        try:             
+            # get data
+            th = self._gui.getObj("sliderThesholdCircles").value()
+            cannyUp = self._gui.getObj("sliderCirclesCannyUp").value()
+            thCircles = self._gui.getObj("sliderThesholdCircles2").value()
+            minRadius = (float( str(self._gui.getObj("txtCirclesRadiusMin").text()) )/100.0) * img.shape[0]
+            maxRadius = (float( str(self._gui.getObj("txtCirclesRadiusMax").text()) )/100.0) * img.shape[0]
+            minDist = (float( str(self._gui.getObj("txtCirclesDistanceMin").text()) )/100.0) *img.shape[0]
+            blur = 5
+                        
             # blur image for better result
             gimg = cvtColor(img, COLOR_RGB2GRAY)
-            gimg = medianBlur(gimg,5)
+            gimg = medianBlur( gimg, blur )
             
             # create binary image
-            gimg = threshold(gimg,115,255,THRESH_BINARY)[1]
+            gimg = threshold( gimg, th, 255, THRESH_BINARY)[1]
+            self.__imgSceneTh = gimg
             
             '''
             Searching for circles by using Hough-Transformation:
-            Parameters used here are chosen arbitrarily!
             '''
-            circles = HoughCircles(gimg, CV_HOUGH_GRADIENT, 1, 10, param1=100, param2=12, minRadius=9, maxRadius=35)
+            circles = HoughCircles( gimg, CV_HOUGH_GRADIENT, 1, int(minDist), param1=cannyUp, param2=thCircles, minRadius=int(minRadius), maxRadius=int(maxRadius) )
             circles = around(circles).astype(int16)
             centers = circles[0][:,:3]
             
@@ -136,16 +125,16 @@ class Transformation(object):
             '''
             vlnr = argsort(centers[:,0],)
             
-            pts_links = centers[vlnr[:2],:]
-            pts_rechts = centers[vlnr[2:],:]
+            pts_left = centers[vlnr[:2],:]
+            pts_right = centers[vlnr[2:],:]
             
             # defining points for coordinate system
             # left:
-            p00 = pts_links[argsort(pts_links[:,1])[0],:]
-            p01 = pts_links[argsort(pts_links[:,1])[1],:]
+            p00 = pts_left[argsort(pts_left[:,1])[0],:]
+            p01 = pts_left[argsort(pts_left[:,1])[1],:]
             # right:
-            p10 = pts_rechts[argsort(pts_rechts[:,0])[0],:]
-            p11 = pts_rechts[argsort(pts_rechts[:,0])[1],:]
+            p10 = pts_right[argsort(pts_right[:,0])[0],:]
+            p11 = pts_right[argsort(pts_right[:,0])[1],:]
             
             
             # correcting axes with aritmethic mean. p00 and p11 are set
@@ -180,11 +169,12 @@ class Transformation(object):
             '''
             self.__offset = array([p00[0],p00[1]])
             self.__basisMatrix = array([[a_v[0],a_h[0]],[a_v[1],a_h[1]]])
-        except:
-            print "error"
-            self.__imgScene = img
+            
+        except:            
+            self._gui.status("Error while calibrating transformation")
+            
         self.__calibrating = False
-        self.__gui.status("Calibration finished.")
+        self._gui.status("Calibration finished.")
         
         pass
     
@@ -198,7 +188,7 @@ class Transformation(object):
         A = self.__basisMatrix
         O = self.__offset
         
-        # Bilde Referenz zum Ursprung des Koordinatensystems
+        # Creating reference to origin of coordinates space 
         b = point - O
         transformation = solve(A,b)
         
@@ -213,13 +203,10 @@ class Transformation(object):
         for obj in objs:
             obj['center'] = self.transformatePoint( array(obj['center']) )
         
-    def __showImage(self):
+    def _showImage(self):
         '''
         Shows image
         '''
-        if self.__imgScene != None:
-            self.__scene.clear()
-            self.__scene.addPixmap( imageToPixmap(self.__imgScene) )
-            self.__gview.fitInView( self.__scene.sceneRect(), Qt.KeepAspectRatio )
-            self.__gview.show()
+        self._updateScene(self.__gview, self.__scene, self.__imgScene, convert=False, keepRatio=True)
+        self._updateScene(self.__gviewTh, self.__sceneTh, self.__imgSceneTh, convert=True, keepRatio=True)
         

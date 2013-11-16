@@ -7,6 +7,7 @@ from gui.GuiLoader import GuiLoader
 from core.ImageGrabber import ImageGrabber
 from core.imageprocessing import findChessBoardPatternSize, imageToPixmap, getChessBoardCorners
 from core.imageprocessing import getCalibrationData, undistortImg, getImageSizeFromCorners
+from core.visionModul import visionModule
 
 from numpy import float32, zeros, indices, prod
 from cv2 import drawChessboardCorners, cvtColor, COLOR_BGR2RGB, COLOR_RGB2GRAY, COLOR_GRAY2RGB, imwrite, threshold, THRESH_BINARY
@@ -20,16 +21,11 @@ from cPickle import dump, load
 
 
 
-class Distortion(object):
+class Distortion(visionModule):
     '''
     classdocs
     '''
-    __gui = GuiLoader()
-    __imageGrabber = ImageGrabber()
-    
-    __img = None
-    __imgScene = None
-    __imgCounter = 0    
+    __imgScene = None  
     
     __scene = None
     __gview = None
@@ -47,39 +43,34 @@ class Distortion(object):
         '''
         Constructor
         '''        
-        self.__gui = GuiLoader()  
-        self.__imageGrabber = ImageGrabber()
+        super(Distortion, self).__init__(gui=gui, imageGrabber=imageGrabber)
         self.__calibrated = False
         self.__calibrating = False
         
         if gui != None:
-            self.__gui = gui
             self.__initGui()
-            
-        if imageGrabber != None:
-            self.__imageGrabber = imageGrabber
         
     def __initGui(self):
         '''
         Initiates gui
         '''
         # initiate scene
-        self.__gview = self.__gui.getObj("imgDistortion")
+        self.__gview = self._gui.getObj("imgDistortion")
         self.__scene = QGraphicsScene()
         self.__gview.setScene(self.__scene)
         
         # create listeners
-        self.__gui.connect( "cmdFindPattern", "clicked()", self.findChessBoardPattern )
-        self.__gui.connect( "cmdCalibrateDistortion", "clicked()", self.calibrateCamera )
-        self.__gui.connect( "cmdSaveDistortion", "clicked()", self.__saveConfiguration )
-        self.__gui.connect( "cmdLoadDistortion", "clicked()", self.__loadConfiguration )
-        self.__gui.connect( "chkCropImg", "toggled(bool)", self.__borderSelectionChanged )
-        self.__gui.connect( "chkCropImgManual", "toggled(bool)", self.__borderSelectionChanged )
-        self.__gui.connect( "cmdSaveImgDistortion", "clicked()", self.__saveImg )
+        self._gui.connect( "cmdFindPattern", "clicked()", self.findChessBoardPattern )
+        self._gui.connect( "cmdCalibrateDistortion", "clicked()", self.calibrateCamera )
+        self._gui.connect( "cmdSaveDistortion", "clicked()", self.__saveConfiguration )
+        self._gui.connect( "cmdLoadDistortion", "clicked()", self.__loadConfiguration )
+        self._gui.connect( "chkCropImg", "toggled(bool)", self.__borderSelectionChanged )
+        self._gui.connect( "chkCropImgManual", "toggled(bool)", self.__borderSelectionChanged )
+        self._gui.connect( "cmdSaveImgDistortion", "clicked()", self.__saveImg )
         
         # start timer
         self.__sceneImgTimer = QTimer()
-        self.__sceneImgTimer.timeout.connect( self.__showImage )
+        self.__sceneImgTimer.timeout.connect( self._showImage )
         self.__sceneImgTimer.start(200)  
 
 
@@ -100,28 +91,27 @@ class Distortion(object):
         '''
         Sets current image
         '''
-        self.__img = img
-        self.__imgCounter += 1
+        super(Distortion, self).setImg(img)
         
-        if not self.isCalibrating():
-            self.__imgScene = self.cropImage( self.undistortImage(self.__img) )
+        if not self.isCalibrating() and self._imageGrabber != None:
+            self.__imgScene = self.cropImage( self.undistortImage(self._img) )
         
     def __borderSelectionChanged(self):
         '''
         Checks selection of manual/auto
         border settings gui group
         '''
-        if self.__gui.getObj("chkCropImgManual").isChecked():
-            self.__gui.getObj("chkCropImg").setChecked(False)
-            self.__gui.getObj("chkCropImg").setEnabled(False)
+        if self._gui.getObj("chkCropImgManual").isChecked():
+            self._gui.getObj("chkCropImg").setChecked(False)
+            self._gui.getObj("chkCropImg").setEnabled(False)
         else:
-            self.__gui.getObj("chkCropImg").setEnabled(True)
+            self._gui.getObj("chkCropImg").setEnabled(True)
             
-        if self.__gui.getObj("chkCropImg").isChecked():
-            self.__gui.getObj("chkCropImgManual").setChecked(False)
-            self.__gui.getObj("chkCropImgManual").setEnabled(False)
+        if self._gui.getObj("chkCropImg").isChecked():
+            self._gui.getObj("chkCropImgManual").setChecked(False)
+            self._gui.getObj("chkCropImgManual").setEnabled(False)
         else:
-            self.__gui.getObj("chkCropImgManual").setEnabled(True)
+            self._gui.getObj("chkCropImgManual").setEnabled(True)
     
     def findChessBoardPattern(self):
         '''
@@ -143,20 +133,20 @@ class Distortion(object):
         '''
         
         # get start and max values
-        xStart = int( str( self.__gui.getObj("txtPatternXMin").text() ) )
-        yStart =  int( str( self.__gui.getObj("txtPatternYMin").text() ) )
-        xMax =  int( str( self.__gui.getObj("txtPatternXMax").text() ) )
-        yMax =  int( str( self.__gui.getObj("txtPatternYMax").text() ) )
+        xStart = int( str( self._gui.getObj("txtPatternXMin").text() ) )
+        yStart =  int( str( self._gui.getObj("txtPatternYMin").text() ) )
+        xMax =  int( str( self._gui.getObj("txtPatternXMax").text() ) )
+        yMax =  int( str( self._gui.getObj("txtPatternYMax").text() ) )
         
         # find pattern
-        if self.__img != None:
-            pattern = findChessBoardPatternSize(self.__img, xMax, yMax, xStart, yStart)
+        if self._img != None:
+            pattern = findChessBoardPatternSize(self._img, xMax, yMax, xStart, yStart)
         
             if pattern != None and len(pattern) > 0:                
                 # set pattern
                 if len(pattern) == 2:
-                    self.__gui.getObj("txtPatternX").setText( str(pattern[0]) )
-                    self.__gui.getObj("txtPatternY").setText( str(pattern[1]) )
+                    self._gui.getObj("txtPatternX").setText( str(pattern[0]) )
+                    self._gui.getObj("txtPatternY").setText( str(pattern[1]) )
     
     def calibrateCamera(self):
         '''
@@ -171,15 +161,15 @@ class Distortion(object):
         (run in background)
         '''
         # check for correct image        
-        if self.__img != None:
+        if self._img != None:
             self.__calibrating = True
-            self.__gui.status("Calibrating ...")
+            self._gui.status("Calibrating ...")
                   
             # get values
-            x = int(str( self.__gui.getObj("txtPatternX").text() ))
-            y = int(str( self.__gui.getObj("txtPatternY").text() ))
-            n = int(str( self.__gui.getObj("txtCalibrationFrames").text() ))
-            square_size = float(str( self.__gui.getObj("txtCalibrationSquareSize").text() ))
+            x = int(str( self._gui.getObj("txtPatternX").text() ))
+            y = int(str( self._gui.getObj("txtPatternY").text() ))
+            n = int(str( self._gui.getObj("txtCalibrationFrames").text() ))
+            square_size = float(str( self._gui.getObj("txtCalibrationSquareSize").text() ))
             
             # calculate distortion
             pattern_size = (x, y)
@@ -190,10 +180,10 @@ class Distortion(object):
                 self.__camera_matrix, self.__dist_coefs = camera_matrix, dist_coefs
             
             # undistort image
-            img = self.undistortImage(self.__img)
+            img = self.undistortImage(self._img)
             self.__imgScene = img
             
-            self.__gui.status("Searching for boders to crop image ...")
+            self._gui.status("Searching for boders to crop image ...")
             
             # get corners
             if ret != None:
@@ -201,7 +191,7 @@ class Distortion(object):
                 frames = 0;
                 tries = 0;
                 while not found and frames < n and tries < 10:
-                    img = self.undistortImage(self.__img)
+                    img = self.undistortImage(self._img)
                     found, corners = getChessBoardCorners( img, pattern_size )
                     if found:
                         frames += 1
@@ -215,7 +205,7 @@ class Distortion(object):
             self.__calibrated = True    
             
         # set calibration flag
-        self.__gui.status("Calibration finished.")
+        self._gui.status("Calibration finished.")
                    
         
         self.__calibrating = False 
@@ -234,20 +224,21 @@ class Distortion(object):
         img_points = []        
         frames = 0;
         tries = 0
-        lastCount = self.__imgCounter;
+        lastCount = self._imgCounter;
         
         # detect pattern
         while frames < n and tries < 10:
-            img = self.__img
+            img = self._img
             
             img = cvtColor(img, COLOR_RGB2GRAY)
             img = threshold(img, 40, 255, THRESH_BINARY)[1]
             img = cvtColor(img, COLOR_GRAY2RGB)
             self.__imgScene = img
+            
             from time import sleep
             sleep(1)
             
-            if lastCount != self.__imgCounter:
+            if lastCount != self._imgCounter:
                 # get corners   
                 print "getchessboardcorners"             
                 found, corners = getChessBoardCorners( img, pattern_size )
@@ -278,12 +269,12 @@ class Distortion(object):
         '''
         
         
-        if self.__corners != None and img != None and ( self.__gui.getObj("chkCropImg").isChecked() or self.__gui.getObj("chkCropImgManual").isChecked() ) :            
+        if self.__corners != None and img != None and ( self._gui.getObj("chkCropImg").isChecked() or self._gui.getObj("chkCropImgManual").isChecked() ) :            
             
             # default settings for manual crop
             try:
-                borderX = int( str(self.__gui.getObj("txtBorderLR").text()) ) 
-                borderY = int( str(self.__gui.getObj("txtBorderTB").text()) )
+                borderX = int( str(self._gui.getObj("txtBorderLR").text()) ) 
+                borderY = int( str(self._gui.getObj("txtBorderTB").text()) )
             except:
                 borderX = 0
                 borderY = 0
@@ -295,8 +286,8 @@ class Distortion(object):
             
             
             # settings for automatic crop
-            if self.__gui.getObj("chkCropImg").isChecked():
-                border = str( self.__gui.getObj("txtCalibrationBorders").text() ).replace(",", ".")
+            if self._gui.getObj("chkCropImg").isChecked():
+                border = str( self._gui.getObj("txtCalibrationBorders").text() ).replace(",", ".")
                 try:
                     borders = int( float(border)/100.0 )
                 except:
@@ -331,7 +322,7 @@ class Distortion(object):
                 ymax = img.shape[0]-1
             
             # conversion before
-            if self.__gui.getObj("chkCropConvBefore").isChecked():
+            if self._gui.getObj("chkCropConvBefore").isChecked():
                 img = cvtColor( img, COLOR_BGR2RGB )
                 
             # crop image
@@ -345,15 +336,11 @@ class Distortion(object):
         
         return img
     
-    def __showImage(self):
+    def _showImage(self):
         '''
         Shows image
         '''
-        if self.__imgScene != None:
-            self.__scene.clear()
-            self.__scene.addPixmap( imageToPixmap(self.__imgScene) )
-            self.__gview.fitInView( self.__scene.sceneRect(), Qt.KeepAspectRatio )
-            self.__gview.show()
+        self._updateScene( self.__gview, self.__scene, self.__imgScene, convert=False, keepRatio=True )
             
     def __saveImg(self):
         '''
@@ -363,27 +350,27 @@ class Distortion(object):
             img = self.__imgScene
             
             # stop video
-            active = self.__imageGrabber.isActive()
-            self.__imageGrabber.stopVideo()
+            active = self._imageGrabber.isActive()
+            self._imageGrabber.stopVideo()
             
             # open file dialog
-            options = copy(self.__gui.dialogOptionsDef)
-            options['type'] = self.__gui.dialogTypes['FileSave']
+            options = copy(self._gui.dialogOptionsDef)
+            options['type'] = self._gui.dialogTypes['FileSave']
             options['filetypes'] = "JPG (*.jpg)"
             options['title'] = "Save current frame as"
-            src = str( self.__gui.dialog(options) )
+            src = str( self._gui.dialog(options) )
             
             # check filepath and save
             if len(src) > 0:
                 if not src.endswith(".jpg"):
                     src = src+".jpg"
-                self.__gui.status( "write to " + src )
+                self._gui.status( "write to " + src )
                 cvtColor(img, COLOR_BGR2RGB)
                 imwrite(src, img)
             
             # reset video streaming
             if active:
-                self.__imageGrabber.startVideo()
+                self._imageGrabber.startVideo()
     
     def undistortImage(self, img=None):
         '''
@@ -399,13 +386,13 @@ class Distortion(object):
         Loads configuration
         '''
         # stop video
-        active = self.__imageGrabber.isActive()
-        self.__imageGrabber.stopVideo()
+        active = self._imageGrabber.isActive()
+        self._imageGrabber.stopVideo()
         
         # get path
-        options = copy(self.__gui.dialogOptionsDef)
+        options = copy(self._gui.dialogOptionsDef)
         options['filetypes'] = "config file (*cfg)"
-        src = str( self.__gui.dialog(options) )
+        src = str( self._gui.dialog(options) )
         
         if len(src) > 0:           
             # load file
@@ -420,29 +407,29 @@ class Distortion(object):
             if 'calibrated' in data:
                 self.__calibrated = data['calibrated']
             if 'cropmanual' in data:
-                self.__gui.getObj("chkCropImgManual").setChecked( data['cropmanual'] )
+                self._gui.getObj("chkCropImgManual").setChecked( data['cropmanual'] )
             if 'cropauto' in data:
-                self.__gui.getObj("chkCropImg").setChecked( data['cropauto'] )
+                self._gui.getObj("chkCropImg").setChecked( data['cropauto'] )
             if 'cropBorderLR' in data:
-                self.__gui.getObj("txtBorderLR").setText( data['cropBorderLR'] )
+                self._gui.getObj("txtBorderLR").setText( data['cropBorderLR'] )
             if 'cropBorderTB' in data:
-                self.__gui.getObj("txtBorderTB").setText( data['cropBorderTB'] )
+                self._gui.getObj("txtBorderTB").setText( data['cropBorderTB'] )
             if 'cropauto' in data:
-                self.__gui.getObj("txtCalibrationBorders").setText( data['cropauto'] )
+                self._gui.getObj("txtCalibrationBorders").setText( data['cropauto'] )
             if 'squareSize' in data:
-                self.__gui.getObj("txtCalibrationSquareSize").setText( data['squareSize'] )
+                self._gui.getObj("txtCalibrationSquareSize").setText( data['squareSize'] )
             if 'calibFrames' in data:
-                self.__gui.getObj("txtCalibrationFrames").setText( data['calibFrames'] )
+                self._gui.getObj("txtCalibrationFrames").setText( data['calibFrames'] )
             if 'patternX' in data:
-                self.__gui.getObj("txtPatternX").setText( data['patternX'] )
+                self._gui.getObj("txtPatternX").setText( data['patternX'] )
             if 'patternY' in data:
-                self.__gui.getObj("txtPatternY").setText( data['patternY'] )
+                self._gui.getObj("txtPatternY").setText( data['patternY'] )
             
-            self.__gui.status("Configuration loaded.")
+            self._gui.status("Configuration loaded.")
             
         # restore video streaming mode
         if active:
-            self.__imageGrabber.startVideo()
+            self._imageGrabber.startVideo()
             
                 
     def __saveConfiguration(self):
@@ -450,14 +437,14 @@ class Distortion(object):
         Saves configuration
         '''
         # stop video
-        active = self.__imageGrabber.isActive()
-        self.__imageGrabber.stopVideo()
+        active = self._imageGrabber.isActive()
+        self._imageGrabber.stopVideo()
         
-        options = copy(self.__gui.dialogOptionsDef)
-        options['type'] = self.__gui.dialogTypes['FileSave']
+        options = copy(self._gui.dialogOptionsDef)
+        options['type'] = self._gui.dialogTypes['FileSave']
         options['title'] = "Save configuration"
         options['filetypes'] = "Configuration (*cfg *mr)"
-        src = str( self.__gui.dialog(options) )
+        src = str( self._gui.dialog(options) )
         
         if len(src) > 0:
             # check path
@@ -469,19 +456,19 @@ class Distortion(object):
                     'dist_coefs': self.__dist_coefs,
                     'corners': self.__corners,
                     'calibrated': self.__calibrated,
-                    'cropmanual': self.__gui.getObj("chkCropImgManual").isChecked(),
-                    'cropauto:': self.__gui.getObj("chkCropImg").isChecked(),
-                    'cropBorder': str( self.__gui.getObj("txtCalibrationBorders").text() ),
-                    'cropBorderLR': str( self.__gui.getObj("txtBorderLR").text() ),
-                    'cropBorderTB': str( self.__gui.getObj("txtBorderTB").text() ),
-                    'squareSize': str( self.__gui.getObj("txtCalibrationSquareSize").text() ),
-                    'calibFrames': str( self.__gui.getObj("txtCalibrationFrames").text() ),
-                    'patternX': str( self.__gui.getObj("txtPatternX").text() ),
-                    'patternY': str( self.__gui.getObj("txtPatternY").text() )}
+                    'cropmanual': self._gui.getObj("chkCropImgManual").isChecked(),
+                    'cropauto:': self._gui.getObj("chkCropImg").isChecked(),
+                    'cropBorder': str( self._gui.getObj("txtCalibrationBorders").text() ),
+                    'cropBorderLR': str( self._gui.getObj("txtBorderLR").text() ),
+                    'cropBorderTB': str( self._gui.getObj("txtBorderTB").text() ),
+                    'squareSize': str( self._gui.getObj("txtCalibrationSquareSize").text() ),
+                    'calibFrames': str( self._gui.getObj("txtCalibrationFrames").text() ),
+                    'patternX': str( self._gui.getObj("txtPatternX").text() ),
+                    'patternY': str( self._gui.getObj("txtPatternY").text() )}
                         
             dump( data, open(src, "wb") )            
-            self.__gui.status("Configuration saved to: " + src)
+            self._gui.status("Configuration saved to: " + src)
             
         # restore video streaming mode
         if active:
-            self.__imageGrabber.startVideo()
+            self._imageGrabber.startVideo()

@@ -20,10 +20,10 @@ class ImageGrabber(object):
     '''
     classdocs
     '''
-    __gui = GuiLoader()
+    _gui = GuiLoader()
+    _img = None
     __sources = []
     __grabTimer = QTimer()
-    __img = None
     
     __scene = None
     __gview = None
@@ -33,10 +33,10 @@ class ImageGrabber(object):
         '''
         Constructor
         '''
-        self.__gui = GuiLoader()
+        self._gui = GuiLoader()
         
         if gui != None:
-            self.__gui = gui
+            self._gui = gui
             self.__initGui()
             
     def __initGui(self):
@@ -44,12 +44,12 @@ class ImageGrabber(object):
         Initiates gui listeners
         '''
         # initiate scene
-        self.__gview = self.__gui.getObj("imgVideo")
+        self.__gview = self._gui.getObj("imgVideo")
         self.__scene = QGraphicsScene()
         self.__gview.setScene(self.__scene)
         
         # add image size combobox items
-        cmb = self.__gui.getObj("cmbImgSize")
+        cmb = self._gui.getObj("cmbImgSize")
         cmb.addItem("320x240")
         cmb.addItem("640x480")
         cmb.addItem("800x600")
@@ -57,7 +57,7 @@ class ImageGrabber(object):
         #cmb.addItem("1280x960")        # not working with libdc1394 and avt stringray 125c
         
         # add conversion combobox items
-        cmb = self.__gui.getObj("cmbConversion")
+        cmb = self._gui.getObj("cmbConversion")
         cmb.addItem("None")
         cmb.addItem("COLOR_BGR2RGB")
         cmb.addItem("COLOR_GRAY2RGB")
@@ -65,13 +65,13 @@ class ImageGrabber(object):
         cmb.addItem("COLOR_HLS2RGB")
         
         # add listeners
-        self.__gui.connect( "cmdStartVideo", "clicked()", self.startVideo )
-        self.__gui.connect( "cmdStopVideo", "clicked()", self.stopVideo )
-        self.__gui.connect( "cmdAddSource", "clicked()", self.__addCamSource )
-        self.__gui.connect( "cmdAddFile", "clicked()", self.__addFileSource )
-        self.__gui.connect( "cmdDelSource", "clicked()", self.__removeSourceFromList )
-        self.__gui.connect( "cmbImgSize", "currentIndexChanged(QString)", self.__imageSizeChanged )
-        self.__gui.connect( "cmdSaveImg", "clicked()", self.saveImg )
+        self._gui.connect( "cmdStartVideo", "clicked()", self.startVideo )
+        self._gui.connect( "cmdStopVideo", "clicked()", self.stopVideo )
+        self._gui.connect( "cmdAddSource", "clicked()", self.__addCamSource )
+        self._gui.connect( "cmdAddFile", "clicked()", self.__addFileSource )
+        self._gui.connect( "cmdDelSource", "clicked()", self.__removeSourceFromList )
+        self._gui.connect( "cmbImgSize", "currentIndexChanged(QString)", self.__imageSizeChanged )
+        self._gui.connect( "cmdSaveImg", "clicked()", self.saveImg )
         
     def isActive(self):
         '''
@@ -89,7 +89,7 @@ class ImageGrabber(object):
         self.__grabTimer = QTimer()
         self.__grabTimer.timeout.connect( self.__grabImage )
         self.__grabTimer.start(0)
-        self.__gui.status("Video started")
+        self._gui.status("Video started")
     
     def stopVideo(self):
         '''
@@ -99,38 +99,38 @@ class ImageGrabber(object):
             self.__grabTimer.stop()
             self.__scene.clear()
             self.__gview.show()
-            self.__gui.status("Video stopped")
+            self._gui.status("Video stopped")
     
     def getImage(self):
         '''
         Returns the last grabbed image
         @return: Image
         '''
-        return self.__img
+        return self._img
     
     def saveImg(self):
         '''
         Saves image
         '''
-        if self.__img != None:
-            img = self.__img
+        if self._img != None:
+            img = self._img
             
             # stop video
             active = self.isActive()
             self.stopVideo()
             
             # open file dialog
-            options = copy(self.__gui.dialogOptionsDef)
-            options['type'] = self.__gui.dialogTypes['FileSave']
+            options = copy(self._gui.dialogOptionsDef)
+            options['type'] = self._gui.dialogTypes['FileSave']
             options['filetypes'] = "JPG (*.jpg)"
             options['title'] = "Save current frame as"
-            src = str( self.__gui.dialog(options) )
+            src = str( self._gui.dialog(options) )
             
             # check filepath and save
             if len(src) > 0:
                 if not src.endswith(".jpg"):
                     src = src+".jpg"
-                self.__gui.status( "write to " + src )
+                self._gui.status( "write to " + src )
                 cvtColor(img, COLOR_BGR2RGB)
                 imwrite(src, img)
             
@@ -143,9 +143,9 @@ class ImageGrabber(object):
         '''
         Shows image on graphics view
         '''
-        if self.__img != None:
+        if self._img != None:
             self.__scene.clear()
-            self.__scene.addPixmap( imageToPixmap(self.__img) )
+            self.__scene.addPixmap( imageToPixmap(self._img) )
             self.__gview.fitInView( self.__scene.sceneRect(), Qt.KeepAspectRatio )
             self.__gview.show()
     
@@ -164,7 +164,7 @@ class ImageGrabber(object):
         img = self.__joinImages(images)
         
         # convert image
-        convert = eval( str(self.__gui.getObj("cmbConversion").currentText()) )
+        convert = eval( str(self._gui.getObj("cmbConversion").currentText()) )
         if convert != None:
             try:
                 img = cvtColor(img, convert)
@@ -174,7 +174,7 @@ class ImageGrabber(object):
         # show results
         if type(img) == ndarray:
             # add image as new image
-            self.__img = img
+            self._img = img
             self.__showImage()
             
         else:
@@ -227,13 +227,13 @@ class ImageGrabber(object):
                 
             # add text string to gui list
             if txt != None:
-                self.__gui.getObj("lstSources").addItem(txt)
+                self._gui.getObj("lstSources").addItem(txt)
                 
     def __removeSourceFromList(self):
         '''
         Removes selected source from list
         '''
-        for item in self.__gui.getObj("lstSources").selectedItems():
+        for item in self._gui.getObj("lstSources").selectedItems():
             # get item informationen
             txt = str( item.text() )
             if "[" in txt and "]" in txt:
@@ -254,7 +254,7 @@ class ImageGrabber(object):
                             break
                 
                 # remove source from gui list
-                item = self.__gui.getObj("lstSources").takeItem( self.__gui.getObj("lstSources").currentRow() )
+                item = self._gui.getObj("lstSources").takeItem( self._gui.getObj("lstSources").currentRow() )
                 item = None
                         
             
@@ -263,27 +263,27 @@ class ImageGrabber(object):
         '''
         Adds camera as source
         '''
-        obj = self.__gui.getObj("txtSource")
+        obj = self._gui.getObj("txtSource")
         source = int( obj.text() )
         
         grabber = CamGrabber(source)
         if grabber.isOpened():
             self.__addSourceToList(grabber)
-            self.__gui.status( "Added camera source ["+str(source)+"]" )
+            self._gui.status( "Added camera source ["+str(source)+"]" )
         else:
-            self.__gui.status( "Could not add camera source ["+str(source)+"]", self.__gui.msgTypes['ERROR'] )
+            self._gui.status( "Could not add camera source ["+str(source)+"]", self._gui.msgTypes['ERROR'] )
     
     def __addFileSource(self):
         '''
         Adds file as source
         '''
         self.stopVideo()
-        options = copy(self.__gui.dialogOptionsDef)
+        options = copy(self._gui.dialogOptionsDef)
         options['filetypes'] = "Images (*.jpg *jpeg *gif *png *bmp *tif)"
-        source = str(self.__gui.dialog(options))
+        source = str(self._gui.dialog(options))
         
         if len(source) > 0:
             grabber = FileGrabber(source)
             self.__addSourceToList(grabber)
             
-            self.__gui.status( "Added file source ["+str(source)+"]" )
+            self._gui.status( "Added file source ["+str(source)+"]" )
