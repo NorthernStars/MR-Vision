@@ -1177,28 +1177,67 @@
                 </property>
                 <layout class="QGridLayout" name="gridLayout_7">
                  <item row="1" column="0">
-                  <widget class="QGraphicsView" name="imgRecognitionThArea">
+                  <widget class="QGraphicsView" name="imgRecognitionArea">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="backgroundBrush">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>195</red>
+                      <green>195</green>
+                      <blue>195</blue>
+                     </color>
+                    </brush>
+                   </property>
                   </widget>
                  </item>
                  <item row="1" column="1">
-                  <widget class="QGraphicsView" name="imgRecognitionCannyArea"/>
+                  <widget class="QGraphicsView" name="imgRecognitionArea2">
+                   <property name="backgroundBrush">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>195</red>
+                      <green>195</green>
+                      <blue>195</blue>
+                     </color>
+                    </brush>
+                   </property>
+                  </widget>
                  </item>
                  <item row="2" column="0">
-                  <widget class="QGraphicsView" name="imgRecognitionThID"/>
+                  <widget class="QGraphicsView" name="imgRecognitionID">
+                   <property name="backgroundBrush">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>195</red>
+                      <green>195</green>
+                      <blue>195</blue>
+                     </color>
+                    </brush>
+                   </property>
+                  </widget>
                  </item>
                  <item row="2" column="1">
-                  <widget class="QGraphicsView" name="imgRecognitionCannyID"/>
+                  <widget class="QGraphicsView" name="imgRecognitionID2">
+                   <property name="backgroundBrush">
+                    <brush brushstyle="SolidPattern">
+                     <color alpha="255">
+                      <red>195</red>
+                      <green>195</green>
+                      <blue>195</blue>
+                     </color>
+                    </brush>
+                   </property>
+                  </widget>
                  </item>
                  <item row="0" column="0">
                   <widget class="QLabel" name="label">
                    <property name="text">
-                    <string>Threshold</string>
+                    <string>Preprocessing</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -1208,7 +1247,7 @@
                  <item row="0" column="1">
                   <widget class="QLabel" name="label_2">
                    <property name="text">
-                    <string>Canny edge detection</string>
+                    <string>Details</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -1264,7 +1303,7 @@
                      </rect>
                     </property>
                     <property name="text">
-                     <string>0.054</string>
+                     <string>0.05</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1306,7 +1345,7 @@
                     <property name="geometry">
                      <rect>
                       <x>250</x>
-                      <y>110</y>
+                      <y>130</y>
                       <width>41</width>
                       <height>27</height>
                      </rect>
@@ -1322,7 +1361,7 @@
                     <property name="geometry">
                      <rect>
                       <x>10</x>
-                      <y>110</y>
+                      <y>130</y>
                       <width>231</width>
                       <height>31</height>
                      </rect>
@@ -1379,6 +1418,54 @@
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
+                   <widget class="QLabel" name="label_8">
+                    <property name="geometry">
+                     <rect>
+                      <x>10</x>
+                      <y>90</y>
+                      <width>231</width>
+                      <height>31</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>Blur:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                   <widget class="QLineEdit" name="txtMarkerAreaBlur">
+                    <property name="geometry">
+                     <rect>
+                      <x>250</x>
+                      <y>90</y>
+                      <width>41</width>
+                      <height>27</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>5</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="lblFoundMarker">
+                    <property name="geometry">
+                     <rect>
+                      <x>10</x>
+                      <y>180</y>
+                      <width>271</width>
+                      <height>17</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>Found marker: None</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                   </widget>
                   </widget>
                  </item>
                  <item row="1" column="0">
@@ -1402,94 +1489,12 @@
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
-                   <widget class="QSlider" name="sliderMarkerIDCannyUp">
-                    <property name="geometry">
-                     <rect>
-                      <x>160</x>
-                      <y>170</y>
-                      <width>131</width>
-                      <height>20</height>
-                     </rect>
-                    </property>
-                    <property name="maximum">
-                     <number>255</number>
-                    </property>
-                    <property name="singleStep">
-                     <number>10</number>
-                    </property>
-                    <property name="value">
-                     <number>255</number>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="tickPosition">
-                     <enum>QSlider::TicksBelow</enum>
-                    </property>
-                   </widget>
-                   <widget class="QLabel" name="label_9">
-                    <property name="geometry">
-                     <rect>
-                      <x>10</x>
-                      <y>150</y>
-                      <width>121</width>
-                      <height>17</height>
-                     </rect>
-                    </property>
-                    <property name="text">
-                     <string>Canny down</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                   <widget class="QLabel" name="label_10">
-                    <property name="geometry">
-                     <rect>
-                      <x>160</x>
-                      <y>150</y>
-                      <width>131</width>
-                      <height>20</height>
-                     </rect>
-                    </property>
-                    <property name="text">
-                     <string>Canny up</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                   <widget class="QSlider" name="sliderMarkerIDCannyDown">
-                    <property name="geometry">
-                     <rect>
-                      <x>10</x>
-                      <y>170</y>
-                      <width>121</width>
-                      <height>20</height>
-                     </rect>
-                    </property>
-                    <property name="maximum">
-                     <number>255</number>
-                    </property>
-                    <property name="singleStep">
-                     <number>10</number>
-                    </property>
-                    <property name="value">
-                     <number>30</number>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="tickPosition">
-                     <enum>QSlider::TicksBelow</enum>
-                    </property>
-                   </widget>
                    <widget class="QSlider" name="sliderThesholdMarkerID">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
-                      <y>120</y>
-                      <width>281</width>
+                      <x>0</x>
+                      <y>110</y>
+                      <width>291</width>
                       <height>20</height>
                      </rect>
                     </property>
@@ -1497,7 +1502,7 @@
                      <number>255</number>
                     </property>
                     <property name="singleStep">
-                     <number>10</number>
+                     <number>2</number>
                     </property>
                     <property name="value">
                      <number>90</number>
@@ -1512,7 +1517,7 @@
                    <widget class="QPushButton" name="cmdRecognitionMarkerID">
                     <property name="geometry">
                      <rect>
-                      <x>100</x>
+                      <x>10</x>
                       <y>210</y>
                       <width>87</width>
                       <height>27</height>
@@ -1541,8 +1546,8 @@
                    <widget class="QLabel" name="label_12">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
-                      <y>100</y>
+                      <x>0</x>
+                      <y>90</y>
                       <width>281</width>
                       <height>20</height>
                      </rect>
@@ -1584,6 +1589,86 @@
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                   <widget class="QLineEdit" name="txtCalibrateMarkerIDN">
+                    <property name="geometry">
+                     <rect>
+                      <x>252</x>
+                      <y>210</y>
+                      <width>41</width>
+                      <height>27</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>0</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                   <widget class="QPushButton" name="cmdCalibrateMarkerIDN">
+                    <property name="geometry">
+                     <rect>
+                      <x>160</x>
+                      <y>210</y>
+                      <width>87</width>
+                      <height>27</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>Calibrate N:</string>
+                    </property>
+                   </widget>
+                   <widget class="QSlider" name="sliderThesholdMarkerIDGray">
+                    <property name="geometry">
+                     <rect>
+                      <x>0</x>
+                      <y>160</y>
+                      <width>291</width>
+                      <height>20</height>
+                     </rect>
+                    </property>
+                    <property name="maximum">
+                     <number>255</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>2</number>
+                    </property>
+                    <property name="value">
+                     <number>90</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="tickPosition">
+                     <enum>QSlider::TicksBelow</enum>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="label_22">
+                    <property name="geometry">
+                     <rect>
+                      <x>0</x>
+                      <y>140</y>
+                      <width>281</width>
+                      <height>20</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>Threshold gray</string>
+                    </property>
+                   </widget>
+                   <widget class="QCheckBox" name="chkCalibrateMarkerNInc">
+                    <property name="geometry">
+                     <rect>
+                      <x>190</x>
+                      <y>180</y>
+                      <width>89</width>
+                      <height>22</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>auto inc.</string>
                     </property>
                    </widget>
                   </widget>

@@ -61,12 +61,10 @@ class mrVisionModule(object):
             mrLogger.log( "No configuration specified", mrLogger.LOG_LEVEL['info'] ) 
         
         # load network interface
-        ret = self.__initNetworkInterface()
+        self.__initNetworkInterface()
         
         # start image processing
-        if ret:
-            start_new_thread( self.__processImage, () )
-            pass
+        start_new_thread( self.__processImage, () )
         
         # start gui
         if guiloader != None:
