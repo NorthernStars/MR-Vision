@@ -16,6 +16,7 @@ from cv2 import cvtColor, threshold, Canny, drawContours, contourArea, resize, g
 from cv2 import warpAffine, adaptiveThreshold,medianBlur
 
 from copy import copy
+from time import time
 
 
 class Recognition(visionModule):
@@ -146,7 +147,8 @@ class Recognition(visionModule):
             marker = self.__markers[n]
             drawContours( self.__imgAreaDetails, [marker], -1, (255,0,255), -1 )
             marker = self.__recorgnizeMarker(gray, marker, contourPadding, th, th2, epsilon, cannyDown, cannyUp)
-            print "Found marker", n, ":", marker
+            if marker != None:
+                self._gui.status( "Found marker: "+str(marker['id'])+" @ "+str(marker['angle'])+"degree"  )
             
             # increase n
             if inc:
@@ -231,18 +233,20 @@ class Recognition(visionModule):
         contourPadding = int( str(self._gui.getObj("txtMarkerIDContourPadding").text()) )
         
         # get current image and convert
-        gray = copy( self._img )
+        gray = self._img 
         gray = cvtColor(gray, COLOR_RGB2GRAY)
         
         # touch every marker
         for marker in self.__markers:
             markerID = self.__recorgnizeMarker(gray, marker, contourPadding, th, th2, epsilon, cannyDown, cannyUp)
-            print "found marker id:", markerID
+            if markerID != None and markerID['id'] != -1:
+                bots.append(markerID)
            
             
-#         print "found bots"
-#         for b in bots:
-#             print "\t,", b
+        self.__bots = bots
+        print "found bots"
+        for b in bots:
+            print "\t,", b
             
     def __recorgnizeMarker(self, gray, marker, contourPadding=0, th=30, th2=128, epsilon=0.01, cannyDown=30, cannyUp=255):
         '''
@@ -327,9 +331,9 @@ class Recognition(visionModule):
         markerID['angle'] += angle
         
         # set image
-        sliceImg = cvtColor(sliceImg, COLOR_GRAY2RGB)
-        drawContours( sliceImg, [bb], -1, (0,255,0) )
-        self.__imgIDDetails = sliceImg
+#         sliceImg = cvtColor(sliceImg, COLOR_GRAY2RGB)
+#         drawContours( sliceImg, [bb], -1, (0,255,0) )
+#         self.__imgIDDetails = sliceImg
         
         return markerID
             
@@ -353,14 +357,11 @@ class Recognition(visionModule):
         '''
         if not self.__isRecognizing:
             self.__isRecognizing = True
-            
             # get marker areas
             self.__recognizeMarkerAreas()
             
             # get marker ids
             self.__recognizeMarkerIDs()
-            
-            # get rectangles
 
             self.__isRecognizing = False
     

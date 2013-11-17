@@ -167,7 +167,7 @@ def rotateVector(vec, angle):
 
 def detectMarkerID(img, minmax, th=100, refMarker={}):
     '''
-    Detects marker ID using hamming code
+    Detects marker ID
     '''
     markerID = {'id': -1, 'center': (0,0), 'angle': 0, 'size': (minmax[1]-minmax[0], minmax[3]-minmax[2]) }
     
@@ -201,6 +201,7 @@ def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
     '''
     Creates code matrix, based on image
     '''    
+    thresholdMultiply = 3
     minX, maxX, minY, maxY = minmax
     imgW = maxX-minX
     imgH = maxY-minY
@@ -219,8 +220,14 @@ def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
             endY = startY+dy
 
             # set matrix element
-            matrix[r][c] = mean( img[ startX:endX, startY:endY ] )[0] > th
+            val = mean( img[ startX:endX, startY:endY ] )[0]
+            if r == 0 or r == rows-1 or c == 0 or c == columns-1:
+                val = val > th*thresholdMultiply
+            else:
+                val = val >th 
+            
+            matrix[r][c] =  val
                     
-    print "matrix\n", matrix
+#     print "matrix\n", matrix
     return matrix
     
