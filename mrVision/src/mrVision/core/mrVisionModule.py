@@ -215,8 +215,11 @@ class mrVisionModule(object):
                     self.__recognition.recognize()
                     
                     # get bots and rectangles
-                    obj = {'bots': self.__recognition.getBots(),
+                    try:
+                        obj = {'bots': self.__recognition.getBots(),
                            'rectangles': self.__recognition.getRectangles()}
+                    except:
+                        pass
                     
                     # transformate objects
                     self.__transformation.transformObjects( obj['bots'] )
