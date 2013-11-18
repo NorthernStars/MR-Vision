@@ -40,7 +40,7 @@ class mrVisionModule(object):
     __recognition = Recognition()
     
     __socketManager = None
-    __mode = mrVisionData.VISION_MODE_NONE
+    __mode = mrVisionData.VISION_MODE_STREAM_ALL
     __connectionTimeout = 30.0
     __moduleName = None
 
@@ -246,7 +246,7 @@ class mrVisionModule(object):
                 
                 self.__setMode(mrVisionData.VISION_MODE_NONE)
                 
-            sleep(0.1)
+            sleep(0.01)
             
         # exit program
         mrLogger.log( "Main loop stopped", mrLogger.LOG_LEVEL['info'] )

@@ -11,7 +11,7 @@ from PyQt4.QtCore import QTimer
 from markerrecognition import getReferenceMarker, getContours, minMax, getBoundingRect, getAngleOfVector
 from markerrecognition import rotateVector, getTranslateVector, detectMarkerID
 
-from cv2 import COLOR_RGB2GRAY, COLOR_GRAY2RGB, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, RETR_LIST
+from cv2 import COLOR_RGB2GRAY, COLOR_GRAY2RGB, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, RETR_LIST, THRESH_BINARY_INV
 from cv2 import cvtColor, threshold, Canny, drawContours, contourArea, resize, getRotationMatrix2D
 from cv2 import warpAffine, adaptiveThreshold,medianBlur
 
@@ -262,14 +262,17 @@ class Recognition(visionModule):
         sliceImg = resize( sliceImg, self.__markerSize )
         
         # threshold and canny
-        imgTh = threshold( sliceImg, th, 255, THRESH_BINARY )[1]                
+        imgTh = threshold( sliceImg, th, 255, THRESH_BINARY_INV )[1]                
         canny = Canny( imgTh, cannyDown, cannyUp )
         
         # set threshold image
-        self.__imgID = imgTh
+#         self.__imgID = imgTh
         
         # get contours again
         contours = getContours( canny, epsilon, enConvexHull=False)
+        
+        self.__imgID = cvtColor(imgTh, COLOR_GRAY2RGB)
+        drawContours(self.__imgID, contours, -1, (255,0,0))
         
         # get first big contour
         imgArea = sliceImg.shape[0]*sliceImg.shape[1]*0.1
@@ -335,7 +338,7 @@ class Recognition(visionModule):
         
         # set image
         sliceImg = cvtColor(sliceImg, COLOR_GRAY2RGB)
-        drawContours( sliceImg, [bb], -1, (0,255,0) )
+#         drawContours( sliceImg, [bb], -1, (0,255,0) )
         self.__imgIDDetails = sliceImg
         
         return markerID
@@ -375,6 +378,6 @@ class Recognition(visionModule):
         '''
         self._updateScene( self.__gviewArea, self.__sceneArea, self.__imgArea )
         self._updateScene( self.__gviewAreaDetails, self.__sceneAreaDetails, self.__imgAreaDetails )
-        self._updateScene( self.__gviewID, self.__sceneID, self.__imgID, convert=True )
+        self._updateScene( self.__gviewID, self.__sceneID, self.__imgID, convert=False )
         self._updateScene( self.__gviewIDDetails, self.__sceneIDDetails, self.__imgIDDetails )
         
