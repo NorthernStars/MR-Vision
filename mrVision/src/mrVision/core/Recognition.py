@@ -237,12 +237,13 @@ class Recognition(visionModule):
         gray = cvtColor(gray, COLOR_RGB2GRAY)
         
         # touch every marker
+        t = time()
         for marker in self.__markers:
             markerID = self.__recorgnizeMarker(gray, marker, contourPadding, th, th2, epsilon, cannyDown, cannyUp)
             if markerID != None and markerID['id'] != -1:
                 bots.append(markerID)
            
-            
+        print time() - t
         self.__bots = bots
         print "found bots"
         for b in bots:
@@ -280,7 +281,7 @@ class Recognition(visionModule):
                 break;
                 
         if contour == None:
-            print "\tno contour found"
+#             print "\tno contour found"
             return None
         
         # get bounding rectangle
@@ -323,6 +324,8 @@ class Recognition(visionModule):
         bb[3] = getTranslateVector(center, bb[3], False)
         
         # get marker id
+        minX, maxX, minY, maxY = minMax(bb)
+        sliceImg = sliceImg[minY:maxY, minX:maxX]
         markerID = detectMarkerID(sliceImg, minMax(bb), th2, self.__referenceMarker)
         
         # set angle and center of morker
@@ -331,9 +334,9 @@ class Recognition(visionModule):
         markerID['angle'] += angle
         
         # set image
-#         sliceImg = cvtColor(sliceImg, COLOR_GRAY2RGB)
-#         drawContours( sliceImg, [bb], -1, (0,255,0) )
-#         self.__imgIDDetails = sliceImg
+        sliceImg = cvtColor(sliceImg, COLOR_GRAY2RGB)
+        drawContours( sliceImg, [bb], -1, (0,255,0) )
+        self.__imgIDDetails = sliceImg
         
         return markerID
             

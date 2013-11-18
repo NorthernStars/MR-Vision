@@ -8,7 +8,7 @@ from os.path import isfile, isdir
 from math import sqrt, atan2, degrees, radians, cos, sin
 
 from cv2 import imread, cvtColor, threshold, getRotationMatrix2D, warpAffine, findContours
-from cv2 import arcLength, approxPolyDP, convexHull, mean
+from cv2 import arcLength, approxPolyDP, convexHull, mean, countNonZero
 from cv2 import COLOR_RGB2GRAY, THRESH_BINARY, CHAIN_APPROX_SIMPLE, RETR_EXTERNAL
 from numpy import array, zeros, bool_, array_equal
 
@@ -46,7 +46,7 @@ def analyseMarkerFromFile(fName="", rows=7, columns=7):
     @return: List of contour of the marker and center of contours
              [ <list contours>, <list center 0>, <list center 90>, <list center 180>, <list center 270> ]
     '''
-    shapeList = {'d0': None, 'd90': None, 'd180': None, 'd270': None }
+    shapeList = []
     
     # check if file exsits
     if not isfile(fName):
@@ -74,7 +74,7 @@ def analyseMarkerFromFile(fName="", rows=7, columns=7):
         matrix = getMarkerMatrix( grayCopy, minmax, rows, columns, 128)
         
         # add matrix of rotation
-        shapeList[ "d"+str(i*90) ] = matrix
+        shapeList.append( ( i*90, matrix ) ) 
                     
     # return list of shapes
     return shapeList
@@ -174,60 +174,71 @@ def detectMarkerID(img, minmax, th=100, refMarker={}):
     # get matrix of image
     matrix = getMarkerMatrix(img, minmax, th=th)
     
+    MAX = 5
+    
     # check reference marker to get correct ID and rotation
     for vID in refMarker:
-        marker = refMarker[vID]
-        angle = -1
+
+        for p in range(4):
+            angle, marker = refMarker[vID][p]
+            i = 0
+            
+            for r in range(7):
+                
+                for c in range(7):
+    
+                    if marker[r][c] != matrix[r][c]:
+                        i += 1
+                    if i > MAX:
+                        break
+            
+                if i > MAX:
+                    break
+                    
+            if i < MAX:
+                MAX = i
+                markerID['id'] = vID
+                markerID['angle'] = angle
         
-        # check angles
-        if array_equal(matrix, marker['d0']):
-            angle = 0
-        elif array_equal(matrix,marker['d90']):
-            angle = 90
-        elif array_equal(matrix, marker['d180']):
-            angle = 180
-        elif array_equal(matrix, marker['d270']):
-            angle = 270
-        else:
-            continue
-        
-        markerID['id'] = vID
-        markerID['angle'] = angle
-        break
+            if i == 0:
+                break
+        if i == 0:
+            break
     
     return markerID
 
 def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
     '''
     Creates code matrix, based on image
-    '''    
-    thresholdMultiply = 3
-    minX, maxX, minY, maxY = minmax
-    imgW = maxX-minX
-    imgH = maxY-minY
-    dx = int( round(float(imgW)/float(columns)) )
-    dy = int( round(float(imgH)/float(rows)) )
+    '''
+    imgH, imgW = img.shape
+    dx = int( round( float(imgW)/float(columns) ) )
+    dy = int( round( float(imgH)/float(rows) ) )
+    maxPixel = dx*dy
     
     # createempty matrix
     matrix = zeros( (rows, columns), bool_ )
     
     for r in range(rows):
-        
+
         for c in range(columns):
-            startX = minX+r*dx
+            startX = r*dx
             endX = startX+dx
-            startY = minY+c*dy
+            startY = c*dy
             endY = startY+dy
 
             # set matrix element
-            val = mean( img[ startX:endX, startY:endY ] )[0]
-            if r == 0 or r == rows-1 or c == 0 or c == columns-1:
-                val = val > th*thresholdMultiply
-            else:
-                val = val >th 
+            val = countNonZero( img[ startX:endX, startY:endY ] )
             
-            matrix[r][c] =  val
+            if r == 0 or r == 6 or c == 0 or c == 6 :
+                threshold = 1.5
+            else:
+                threshold = 3
+            
+            if val > ( maxPixel / threshold ):
+                matrix[r][c] = True
+            
                     
-#     print "matrix\n", matrix
+    #print "matrix\n", matrix
     return matrix
     
