@@ -10,6 +10,8 @@ from core.imageprocessing import imageToPixmap
 from cv2 import cvtColor, COLOR_GRAY2RGB
 from PyQt4.QtCore import Qt
 
+from copy import copy
+
 class visionModule(object):
     '''
     classdocs
@@ -48,10 +50,11 @@ class visionModule(object):
         '''
         Updates scene
         '''
+        img = copy(img)
         if img != None and scene != None and gview != None:
             # convert image to rgb
             if convert:
-                img = cvtColor(img, COLOR_GRAY2RGB)
+                img = cvtColor( img, COLOR_GRAY2RGB)
             
             # clear scene and add image pixmap
             scene.clear()
