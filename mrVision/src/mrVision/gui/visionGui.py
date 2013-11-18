@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Mon Nov 18 11:55:05 2013
+# Created: Mon Nov 18 16:16:37 2013
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -469,6 +469,12 @@ class Ui_frmMain(object):
         self.label_21 = QtGui.QLabel(self.widget_4)
         self.label_21.setGeometry(QtCore.QRect(10, 220, 281, 20))
         self.label_21.setObjectName(_fromUtf8("label_21"))
+        self.cmdSaveTransformation = QtGui.QPushButton(self.widget_4)
+        self.cmdSaveTransformation.setGeometry(QtCore.QRect(110, 400, 87, 27))
+        self.cmdSaveTransformation.setObjectName(_fromUtf8("cmdSaveTransformation"))
+        self.cmdLoadTransformation = QtGui.QPushButton(self.widget_4)
+        self.cmdLoadTransformation.setGeometry(QtCore.QRect(110, 440, 87, 27))
+        self.cmdLoadTransformation.setObjectName(_fromUtf8("cmdLoadTransformation"))
         self.gridLayout_11.addWidget(self.widget_4, 0, 1, 1, 1)
         self.tabSettings.addTab(self.tabTransformation, _fromUtf8(""))
         self.tabRecognition = QtGui.QWidget()
@@ -747,6 +753,8 @@ class Ui_frmMain(object):
         self.label_20.setText(_translate("frmMain", "Circles dist. min [%]:", None))
         self.txtCirclesDistanceMin.setText(_translate("frmMain", "10", None))
         self.label_21.setText(_translate("frmMain", "Circles threshold", None))
+        self.cmdSaveTransformation.setText(_translate("frmMain", "Save", None))
+        self.cmdLoadTransformation.setText(_translate("frmMain", "Load", None))
         self.tabSettings.setTabText(self.tabSettings.indexOf(self.tabTransformation), _translate("frmMain", "Transformation", None))
         self.grbRecognition.setTitle(_translate("frmMain", "Object Recognition", None))
         self.label.setText(_translate("frmMain", "Preprocessing", None))

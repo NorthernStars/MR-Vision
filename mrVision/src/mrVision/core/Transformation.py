@@ -14,6 +14,9 @@ from cv2.cv import CV_HOUGH_GRADIENT
 from numpy import array, around, argsort, int16
 from numpy.linalg import solve
 
+from cPickle import dump, load
+from copy import copy
+
 class Transformation(visionModule):
     '''
     classdocs
@@ -55,11 +58,59 @@ class Transformation(visionModule):
         
         # create listeners
         self._gui.connect( "cmdCalibrateTransformation", "clicked()", self.__calibrateTransformation )
+        self._gui.connect( "cmdSaveTransformation", "clicked()", self.saveSettings )
+        self._gui.connect( "cmdLoadTransformation", "clicked()", self.loadSetting )
         
         # start timer
         self.__sceneImgTimer = QTimer()
         self.__sceneImgTimer.timeout.connect( self._showImage )
         self.__sceneImgTimer.start(100)  
+    
+    def saveSettings(self):
+        '''
+        Save Settings
+        '''
+        # stop video        
+        options = copy(self._gui.dialogOptionsDef)
+        options['type'] = self._gui.dialogTypes['FileSave']
+        options['title'] = "Save configuration"
+        options['filetypes'] = "Configuration (*cfg *mr)"
+        src = str( self._gui.dialog(options) )
+        
+        if len(src) > 0:
+            # check path
+            if not src.endswith(".cfg"):
+                src += ".cfg"
+            
+            # save data to file     
+            data = {'basismatrix': self.__basisMatrix,
+                    'offset': self.__offset,
+                    'calibrated': self.__calibrated}
+                        
+            dump( data, open(src, "wb") )            
+            self._gui.status("Configuration saved to: " + src)
+    
+    def loadSetting(self):
+        '''
+        Load Settings
+        '''
+        # get path
+        options = copy(self._gui.dialogOptionsDef)
+        options['filetypes'] = "config file (*cfg)"
+        src = str( self._gui.dialog(options) )
+        
+        if len(src) > 0:           
+            # load file
+            data = load( open(src, "rb") )
+            
+            if 'basismatrix' in data:
+                self.__basisMatrix = data['basismatrix']
+            if 'offset' in data:
+                self.__offset = data['offset']
+            if 'calibrated' in data:
+                self.__calibrated = data['calibrated']
+            
+            self._gui.status("Configuration loaded.")
         
     def isCalibrated(self):
         '''
