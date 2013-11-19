@@ -101,6 +101,10 @@ class Transformation(visionModule):
         '''
         Load Settings
         '''
+        # stop video
+        active = self._imageGrabber.isActive()
+        self._imageGrabber.stopVideo()
+        
         # get path
         options = copy(self._gui.dialogOptionsDef)
         options['filetypes'] = "config file (*cfg)"
@@ -118,6 +122,10 @@ class Transformation(visionModule):
                 self.__calibrated = data['calibrated']
             
             self._gui.status("Configuration loaded.")
+            
+        # restore video streaming mode
+        if active:
+            self._imageGrabber.startVideo()
         
     def isCalibrated(self):
         '''
