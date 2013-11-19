@@ -163,10 +163,13 @@ class mrVisionModule(object):
                 for bot in visionObjects['bots']:
                     b = positionObjectBot()
                     b.id = bot['id']
+                    print "-----------------"
+                    print "bot:", bot
                     b.location.append( 1-bot['center'][0] )
                     b.location.append( bot['center'][1] )
                     b.angle = bot['angle']
                     data.append(b)
+                    print "botsend:", bot
             
             # add rectangles to datapackage
             if self.__mode == VISION_MODE_STREAM_OBJ or self.__mode in VISION_MODE_STREAM_ALL:

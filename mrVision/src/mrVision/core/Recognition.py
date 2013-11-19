@@ -247,9 +247,9 @@ class Recognition(visionModule):
            
         print time() - t
         self.__bots = bots
-        print "found bots"
-        for b in bots:
-            print "\t,", b
+#         print "found bots"
+#         for b in bots:
+#             print "\t,", b
             
     def __recorgnizeMarker(self, gray, marker, contourPadding=0, th=30, th2=128, epsilon=0.01, cannyDown=30, cannyUp=255):
         '''
