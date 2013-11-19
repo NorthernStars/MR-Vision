@@ -241,6 +241,6 @@ def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
                 matrix[r][c] = True
             
                     
-    print "matrix\n", matrix
+    #print "matrix\n", matrix
     return matrix
     

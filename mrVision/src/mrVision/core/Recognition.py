@@ -240,7 +240,7 @@ class Recognition(visionModule):
         # touch every marker
         t = time()
         for marker in self.__markers:
-            print "------------\nneuer marker"
+            #print "------------\nneuer marker"
             markerID = self.__recorgnizeMarker(gray, marker, contourPadding, th, th2, epsilon, cannyDown, cannyUp)
             if markerID != None and markerID['id'] != -1:
                 bots.append(markerID)
@@ -286,7 +286,7 @@ class Recognition(visionModule):
                 break;
                 
         if contour == None:
-            print "\tno contour found"
+            #print "\tno contour found"
             return None
         
         # get bounding rectangle
