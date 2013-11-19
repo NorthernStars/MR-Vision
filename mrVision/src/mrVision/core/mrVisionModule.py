@@ -163,7 +163,7 @@ class mrVisionModule(object):
                 for bot in visionObjects['bots']:
                     b = positionObjectBot()
                     b.id = bot['id']
-                    b.location.append( bot['center'][0] )
+                    b.location.append( 1-bot['center'][0] )
                     b.location.append( bot['center'][1] )
                     b.angle = bot['angle']
                     data.append(b)
