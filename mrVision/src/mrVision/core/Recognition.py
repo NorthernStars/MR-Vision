@@ -17,6 +17,7 @@ from cv2 import warpAffine, adaptiveThreshold,medianBlur
 
 from copy import copy
 from time import time
+import Image
 
 
 class Recognition(visionModule):
@@ -239,6 +240,7 @@ class Recognition(visionModule):
         # touch every marker
         t = time()
         for marker in self.__markers:
+            print "------------\nneuer marker"
             markerID = self.__recorgnizeMarker(gray, marker, contourPadding, th, th2, epsilon, cannyDown, cannyUp)
             if markerID != None and markerID['id'] != -1:
                 bots.append(markerID)
@@ -259,7 +261,7 @@ class Recognition(visionModule):
         
         # slice and resize marker
         sliceImg = gray[minY:maxY, minX:maxX]
-#         sliceImg = resize( sliceImg, self.__markerSize )
+        sliceImg = resize( sliceImg, self.__markerSize )
         
         # threshold and canny
         imgTh = threshold( sliceImg, th, 255, THRESH_BINARY_INV )[1]                
@@ -284,7 +286,7 @@ class Recognition(visionModule):
                 break;
                 
         if contour == None:
-#             print "\tno contour found"
+            print "\tno contour found"
             return None
         
         # get bounding rectangle
@@ -327,8 +329,9 @@ class Recognition(visionModule):
         bb[3] = getTranslateVector(center, bb[3], False)
         
         # get marker id
-        minX, maxX, minY, maxY = minMax(bb)
-#         sliceImg = sliceImg[minY:maxY, minX:maxX]
+        minX, maxX, minY, maxY = minMax(bb)        
+        
+        sliceImg = sliceImg[minY:maxY, minX:maxX]
         markerID = detectMarkerID(sliceImg, minMax(bb), th2, self.__referenceMarker)
         
         # set angle and center of morker

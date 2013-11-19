@@ -12,6 +12,8 @@ from cv2 import arcLength, approxPolyDP, convexHull, mean, countNonZero
 from cv2 import COLOR_RGB2GRAY, THRESH_BINARY, CHAIN_APPROX_SIMPLE, RETR_EXTERNAL
 from numpy import array, zeros, bool_, array_equal
 
+import Image
+
 def getReferenceMarker(path=None, rows=7, columns=7):
     '''
     Returns list of reference markers
@@ -210,10 +212,8 @@ def detectMarkerID(img, minmax, th=100, refMarker={}):
 def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
     '''
     Creates code matrix, based on image
-    '''
-    minx, maxx, miny, maxy = minmax
-    imgH = maxy - miny
-    imgW = maxx - minx
+    '''    
+    imgH, imgW = img.shape
     dx = int( round( float(imgW)/float(columns) ) )
     dy = int( round( float(imgH)/float(rows) ) )
     maxPixel = dx*dy
@@ -224,9 +224,9 @@ def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
     for r in range(rows):
 
         for c in range(columns):
-            startX = r*dx + miny
+            startX = r*dx
             endX = startX+dx
-            startY = c*dy + minx
+            startY = c*dy
             endY = startY+dy
 
             # set matrix element
@@ -241,6 +241,6 @@ def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
                 matrix[r][c] = True
             
                     
-    #print "matrix\n", matrix
+    print "matrix\n", matrix
     return matrix
     

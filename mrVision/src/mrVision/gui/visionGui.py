@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Mon Nov 18 16:16:37 2013
+# Created: Tue Nov 19 13:20:03 2013
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -722,8 +722,8 @@ class Ui_frmMain(object):
         self.lblPatternYMax.setText(_translate("frmMain", "Pattern Y max:", None))
         self.lblPatternX.setText(_translate("frmMain", "Corners X:", None))
         self.lblPatternY.setText(_translate("frmMain", "Corners Y:", None))
-        self.txtPatternX.setText(_translate("frmMain", "5", None))
-        self.txtPatternY.setText(_translate("frmMain", "8", None))
+        self.txtPatternX.setText(_translate("frmMain", "19", None))
+        self.txtPatternY.setText(_translate("frmMain", "26", None))
         self.chkCropConvBefore.setText(_translate("frmMain", "Convert from BGR to RGB before crop", None))
         self.txtCalibrationFrames.setText(_translate("frmMain", "3", None))
         self.txtCalibrationSquareSize.setText(_translate("frmMain", "1.0", None))
@@ -763,11 +763,11 @@ class Ui_frmMain(object):
         self.label_3.setText(_translate("frmMain", "Marker area min [%]:", None))
         self.txtMarkerAreaMin.setText(_translate("frmMain", "0.05", None))
         self.label_4.setText(_translate("frmMain", "max [%]:", None))
-        self.txtMarkerAreaMax.setText(_translate("frmMain", "0.055", None))
+        self.txtMarkerAreaMax.setText(_translate("frmMain", "1", None))
         self.txtMarkerAreaEpsilon.setText(_translate("frmMain", "0.05", None))
         self.label_6.setText(_translate("frmMain", "Epsilon:", None))
         self.cmdRecognitionMarkerArea.setText(_translate("frmMain", "Calibrate", None))
-        self.txtMarkerAreaBlockSize.setText(_translate("frmMain", "33", None))
+        self.txtMarkerAreaBlockSize.setText(_translate("frmMain", "13", None))
         self.label_7.setText(_translate("frmMain", "Block size:", None))
         self.label_8.setText(_translate("frmMain", "Blur:", None))
         self.txtMarkerAreaBlur.setText(_translate("frmMain", "5", None))
