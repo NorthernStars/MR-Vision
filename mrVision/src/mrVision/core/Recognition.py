@@ -28,6 +28,7 @@ class Recognition(visionModule):
     __imgAreaDetails = None
     __imgID = None
     __imgIDDetails = None
+    __imgRegArea = None
     
     __sceneArea = None
     __sceneAreaDetails = None
@@ -116,51 +117,7 @@ class Recognition(visionModule):
         self.__referenceMarker = getReferenceMarker(path)
         self._gui.status( "Analysed all reference markers" )
         
-    def __calibrateMarkerN(self):
-        '''
-        Calibrates one specific marker
-        '''
-        n = int( str(self._gui.getObj("txtCalibrateMarkerIDN").text()) )
-        
-        # check dimension of n
-        if n > len(self.__markers)-1:
-            n = len(self.__markers)-1
-        elif n < 0:
-            n = 0
-            
-        # check if there are markers
-        if len(self.__markers) > 0 and self._img != None:
-            
-            # get data
-            inc = self._gui.getObj("chkCalibrateMarkerNInc").isChecked()
-            th = self._gui.getObj("sliderThesholdMarkerID").value()
-            th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()
-            cannyDown = 30
-            cannyUp = 255
-            epsilon = float( str(self._gui.getObj("txtMarkerIDEpsilon").text()) )
-            contourPadding = int( str(self._gui.getObj("txtMarkerIDContourPadding").text()) )
-            
-            # get current image and convert
-            gray = copy( self._img )
-            gray = cvtColor(gray, COLOR_RGB2GRAY)
-                
-            # calibrate marker
-            marker = self.__markers[n]
-            drawContours( self.__imgAreaDetails, [marker], -1, (255,0,255), -1 )
-            marker = self.__recorgnizeMarker(gray, marker, contourPadding, th, th2, epsilon, cannyDown, cannyUp)
-            if marker != None:
-                self._gui.status( "Found marker: "+str(marker['id'])+" @ "+str(marker['angle'])+"degree"  )
-            
-            # increase n
-            if inc:
-                if n < len(self.__markers)-1:
-                    n += 1
-                else:
-                    n = 0
-                
-            # set new marker number
-            self._gui.getObj("txtCalibrateMarkerIDN").setText( str(n) )
-        
+    
     def __recognizeMarkerAreas(self):
         '''
         Recognizes marker area
@@ -183,8 +140,8 @@ class Recognition(visionModule):
             blocksize -= 1
                 
         # get current image and convert
-        gray = copy(self._img)        
-        gray = cvtColor(gray, COLOR_RGB2GRAY)
+        self.__imgRegArea = copy(self._img)        
+        gray = cvtColor(self.__imgRegArea, COLOR_RGB2GRAY)
         imgArea = gray.shape[0]*gray.shape[1]
         
         # threshold and canny
@@ -221,7 +178,7 @@ class Recognition(visionModule):
         self.__bots = []
         bots = []
         
-        if self._img == None or self.__referenceMarker == None or len( self.__markers ) == 0:
+        if self.__imgRegArea == None or self.__referenceMarker == None or len( self.__markers ) == 0:
             self._gui.status( "No image or marker contours!" )
             return
 
@@ -234,7 +191,7 @@ class Recognition(visionModule):
         contourPadding = int( str(self._gui.getObj("txtMarkerIDContourPadding").text()) )
         
         # get current image and convert
-        gray = self._img 
+        gray = self.__imgRegArea
         gray = cvtColor(gray, COLOR_RGB2GRAY)
         
         # touch every marker
@@ -250,6 +207,52 @@ class Recognition(visionModule):
 #         print "found bots"
 #         for b in bots:
 #             print "\t,", b
+
+    def __calibrateMarkerN(self):
+        '''
+        Calibrates one specific marker
+        '''
+        n = int( str(self._gui.getObj("txtCalibrateMarkerIDN").text()) )
+        
+        # check dimension of n
+        if n > len(self.__markers)-1:
+            n = len(self.__markers)-1
+        elif n < 0:
+            n = 0
+            
+        # check if there are markers
+        if len(self.__markers) > 0 and self.__imgRegArea != None:
+            
+            # get data
+            inc = self._gui.getObj("chkCalibrateMarkerNInc").isChecked()
+            th = self._gui.getObj("sliderThesholdMarkerID").value()
+            th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()
+            cannyDown = 30
+            cannyUp = 255
+            epsilon = float( str(self._gui.getObj("txtMarkerIDEpsilon").text()) )
+            contourPadding = int( str(self._gui.getObj("txtMarkerIDContourPadding").text()) )
+            
+            # get current image and convert
+            gray = copy( self.__imgRegArea )
+            gray = cvtColor(gray, COLOR_RGB2GRAY)
+                
+            # calibrate marker
+            marker = self.__markers[n]
+            drawContours( self.__imgAreaDetails, [marker], -1, (255,0,255), -1 )
+            marker = self.__recorgnizeMarker(gray, marker, contourPadding, th, th2, epsilon, cannyDown, cannyUp)
+            if marker != None:
+                self._gui.status( "Found marker: "+str(marker['id'])+" @ "+str(marker['angle'])+"degree"  )
+            
+            # increase n
+            if inc:
+                if n < len(self.__markers)-1:
+                    n += 1
+                else:
+                    n = 0
+                
+            # set new marker number
+            self._gui.getObj("txtCalibrateMarkerIDN").setText( str(n) )
+        
             
     def __recorgnizeMarker(self, gray, marker, contourPadding=0, th=30, th2=128, epsilon=0.01, cannyDown=30, cannyUp=255):
         '''
