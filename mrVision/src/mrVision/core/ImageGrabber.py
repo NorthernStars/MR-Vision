@@ -14,6 +14,7 @@ from PyQt4.QtCore import QTimer, Qt
 from cv2 import cvtColor, COLOR_BGR2RGB, COLOR_GRAY2RGB, COLOR_HLS2RGB, COLOR_YUV2RGB, imwrite  # @UnusedImport
 from numpy import ndarray
 from copy import copy
+from time import sleep
 
 
 class ImageGrabber(object):
@@ -100,6 +101,7 @@ class ImageGrabber(object):
             self.__scene.clear()
             self.__gview.show()
             self._gui.status("Video stopped")
+            sleep(1)
     
     def getImage(self):
         '''

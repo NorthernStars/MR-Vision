@@ -70,7 +70,10 @@ class Transformation(visionModule):
         '''
         Save Settings
         '''
-        # stop video        
+        # stop video
+        active = self._imageGrabber.isActive()
+        self._imageGrabber.stopVideo()
+               
         options = copy(self._gui.dialogOptionsDef)
         options['type'] = self._gui.dialogTypes['FileSave']
         options['title'] = "Save configuration"
@@ -89,6 +92,10 @@ class Transformation(visionModule):
                         
             dump( data, open(src, "wb") )            
             self._gui.status("Configuration saved to: " + src)
+            
+        # restore video streaming mode
+        if active:
+            self._imageGrabber.startVideo()
     
     def loadSetting(self):
         '''
@@ -258,6 +265,7 @@ class Transformation(visionModule):
         '''
         Shows image
         '''
-        self._updateScene(self.__gview, self.__scene, self.__imgScene, convert=False, keepRatio=True)
-        self._updateScene(self.__gviewTh, self.__sceneTh, self.__imgSceneTh, convert=True, keepRatio=True)
+        if not self.isCalibrated() or self.isCalibrating():
+            self._updateScene(self.__gview, self.__scene, self.__imgScene, convert=False, keepRatio=True)
+            self._updateScene(self.__gviewTh, self.__sceneTh, self.__imgSceneTh, convert=True, keepRatio=True)
         

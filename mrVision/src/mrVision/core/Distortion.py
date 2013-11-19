@@ -335,12 +335,6 @@ class Distortion(visionModule):
                 print "ERROR"
         
         return img
-    
-    def _showImage(self):
-        '''
-        Shows image
-        '''
-        self._updateScene( self.__gview, self.__scene, self.__imgScene, convert=False, keepRatio=True )
             
     def __saveImg(self):
         '''
@@ -472,3 +466,10 @@ class Distortion(visionModule):
         # restore video streaming mode
         if active:
             self._imageGrabber.startVideo()
+            
+    def _showImage(self):
+        '''
+        Shows image
+        '''
+        if not self.isCalibrated() or self.isCalibrating():
+            self._updateScene( self.__gview, self.__scene, self.__imgScene, convert=False, keepRatio=True )
