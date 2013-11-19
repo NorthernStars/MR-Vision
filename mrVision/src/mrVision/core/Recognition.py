@@ -259,7 +259,7 @@ class Recognition(visionModule):
         
         # slice and resize marker
         sliceImg = gray[minY:maxY, minX:maxX]
-        sliceImg = resize( sliceImg, self.__markerSize )
+#         sliceImg = resize( sliceImg, self.__markerSize )
         
         # threshold and canny
         imgTh = threshold( sliceImg, th, 255, THRESH_BINARY_INV )[1]                
@@ -328,7 +328,7 @@ class Recognition(visionModule):
         
         # get marker id
         minX, maxX, minY, maxY = minMax(bb)
-        sliceImg = sliceImg[minY:maxY, minX:maxX]
+#         sliceImg = sliceImg[minY:maxY, minX:maxX]
         markerID = detectMarkerID(sliceImg, minMax(bb), th2, self.__referenceMarker)
         
         # set angle and center of morker

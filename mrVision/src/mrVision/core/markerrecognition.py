@@ -211,7 +211,9 @@ def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
     '''
     Creates code matrix, based on image
     '''
-    imgH, imgW = img.shape
+    minx, maxx, miny, maxy = minmax
+    imgH = maxy - miny
+    imgW = maxx - minx
     dx = int( round( float(imgW)/float(columns) ) )
     dy = int( round( float(imgH)/float(rows) ) )
     maxPixel = dx*dy
@@ -222,9 +224,9 @@ def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
     for r in range(rows):
 
         for c in range(columns):
-            startX = r*dx
+            startX = r*dx + miny
             endX = startX+dx
-            startY = c*dy
+            startY = c*dy + minx
             endY = startY+dy
 
             # set matrix element
