@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Tue Nov 19 13:20:03 2013
+# Created: Wed Nov 20 13:16:44 2013
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -722,8 +722,8 @@ class Ui_frmMain(object):
         self.lblPatternYMax.setText(_translate("frmMain", "Pattern Y max:", None))
         self.lblPatternX.setText(_translate("frmMain", "Corners X:", None))
         self.lblPatternY.setText(_translate("frmMain", "Corners Y:", None))
-        self.txtPatternX.setText(_translate("frmMain", "19", None))
-        self.txtPatternY.setText(_translate("frmMain", "26", None))
+        self.txtPatternX.setText(_translate("frmMain", "5", None))
+        self.txtPatternY.setText(_translate("frmMain", "8", None))
         self.chkCropConvBefore.setText(_translate("frmMain", "Convert from BGR to RGB before crop", None))
         self.txtCalibrationFrames.setText(_translate("frmMain", "3", None))
         self.txtCalibrationSquareSize.setText(_translate("frmMain", "1.0", None))

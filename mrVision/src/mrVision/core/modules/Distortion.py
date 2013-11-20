@@ -3,20 +3,20 @@ Created on 21.10.2013
 
 @author: northernstars
 '''
-from gui.GuiLoader import GuiLoader
-from core.ImageGrabber import ImageGrabber
-from core.imageprocessing import findChessBoardPatternSize, imageToPixmap, getChessBoardCorners
-from core.imageprocessing import getCalibrationData, undistortImg, getImageSizeFromCorners
+from mrLib.logging import mrLogger
+from imageLibs.imageprocessing import findChessBoardPatternSize, getChessBoardCorners
+from imageLibs.imageprocessing import getCalibrationData, undistortImg, getImageSizeFromCorners
 from core.visionModul import visionModule
 
 from numpy import float32, zeros, indices, prod
 from cv2 import drawChessboardCorners, cvtColor, COLOR_BGR2RGB, COLOR_RGB2GRAY, COLOR_GRAY2RGB, imwrite, threshold, THRESH_BINARY
 
 from PyQt4.QtGui import QGraphicsScene
-from PyQt4.QtCore import QTimer, Qt
+from PyQt4.QtCore import QTimer
 from thread import start_new_thread
 from copy import copy
 from cPickle import dump, load
+from os.path import isfile
 
 
 
@@ -39,16 +39,23 @@ class Distortion(visionModule):
     __calibrating = False
 
 
-    def __init__(self, gui=None, imageGrabber=None):
+    def __init__(self, gui=None, imageGrabber=None, config=None):
         '''
         Constructor
         '''        
-        super(Distortion, self).__init__(gui=gui, imageGrabber=imageGrabber)
+        super(Distortion, self).__init__(gui=gui, imageGrabber=imageGrabber, config=config)
         self.__calibrated = False
         self.__calibrating = False
         
         if gui != None:
             self.__initGui()
+            
+        if self._config != None:
+            cfgFile = self._config.getConfigValue("CONFIGURATION", "cfgCalibration")
+            if cfgFile != None and self.__loadConfigData(cfgFile):
+                self._gui.status( "Loaded distortion config." )
+                mrLogger.logInfo( "Loaded distortion config file " + str(cfgFile) )
+        
         
     def __initGui(self):
         '''
@@ -71,7 +78,8 @@ class Distortion(visionModule):
         # start timer
         self.__sceneImgTimer = QTimer()
         self.__sceneImgTimer.timeout.connect( self._showImage )
-        self.__sceneImgTimer.start(200)  
+        self.__sceneImgTimer.start(200)        
+     
 
 
     def isCalibrated(self):
@@ -388,7 +396,19 @@ class Distortion(visionModule):
         options['filetypes'] = "config file (*cfg)"
         src = str( self._gui.dialog(options) )
         
-        if len(src) > 0:           
+        if self.__loadConfigData(src):
+            self._gui.status("Distortion config loaded.")
+            
+        # restore video streaming mode
+        if active:
+            self._imageGrabber.startVideo()
+            
+    
+    def __loadConfigData(self, src):
+        '''
+        Loads data from config file
+        '''
+        if len(src) > 0 and isfile(src):           
             # load file
             data = load( open(src, "rb") )
             
@@ -419,11 +439,9 @@ class Distortion(visionModule):
             if 'patternY' in data:
                 self._gui.getObj("txtPatternY").setText( data['patternY'] )
             
-            self._gui.status("Configuration loaded.")
-            
-        # restore video streaming mode
-        if active:
-            self._imageGrabber.startVideo()
+            return True
+        
+        return False
             
                 
     def __saveConfiguration(self):

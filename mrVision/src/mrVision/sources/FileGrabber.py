@@ -6,7 +6,7 @@ Created on 16.10.2013
 from AbstractSourceGrabber import AbstractSourceGrabber
 from cv2 import resize
 from os.path import isfile
-from core.imageprocessing import getImgFromFile
+from imageLibs.imageprocessing import getImgFromFile
 
 class FileGrabber(AbstractSourceGrabber):
     '''

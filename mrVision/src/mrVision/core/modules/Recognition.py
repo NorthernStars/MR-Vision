@@ -8,8 +8,8 @@ from core.visionModul import visionModule
 from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer
 
-from markerrecognition import getReferenceMarker, getContours, minMax, getBoundingRect, getAngleOfVector
-from markerrecognition import rotateVector, getTranslateVector, detectMarkerID
+from imageLibs.markerrecognition import getReferenceMarker, getContours, minMax, getBoundingRect, getAngleOfVector
+from imageLibs.markerrecognition import rotateVector, getTranslateVector, detectMarkerID
 
 from cv2 import COLOR_RGB2GRAY, COLOR_GRAY2RGB, THRESH_BINARY, ADAPTIVE_THRESH_MEAN_C, RETR_LIST, THRESH_BINARY_INV
 from cv2 import cvtColor, threshold, Canny, drawContours, contourArea, resize, getRotationMatrix2D
@@ -45,11 +45,11 @@ class Recognition(visionModule):
     
     __sceneImgTimer = QTimer()
 
-    def __init__(self, gui=None, imageGrabber=None):
+    def __init__(self, gui=None, imageGrabber=None, config=None):
         '''
         Constructor
         '''        
-        super(Recognition, self).__init__(gui=gui, imageGrabber=imageGrabber)
+        super(Recognition, self).__init__(gui=gui, imageGrabber=imageGrabber, config=config)
         self.__isRecognizing = False   
         self.__imgArea = None 
         self.__imgAreaDetails = None

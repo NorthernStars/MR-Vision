@@ -8,9 +8,9 @@ from os.path import isfile, isdir
 from math import sqrt, atan2, degrees, radians, cos, sin
 
 from cv2 import imread, cvtColor, threshold, getRotationMatrix2D, warpAffine, findContours
-from cv2 import arcLength, approxPolyDP, convexHull, mean, countNonZero
+from cv2 import arcLength, approxPolyDP, convexHull, countNonZero
 from cv2 import COLOR_RGB2GRAY, THRESH_BINARY, CHAIN_APPROX_SIMPLE, RETR_EXTERNAL
-from numpy import array, zeros, bool_, array_equal
+from numpy import array, zeros, bool_
 
 import Image
 

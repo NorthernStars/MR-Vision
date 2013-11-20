@@ -4,7 +4,7 @@ Created on 16.10.2013
 @author: northernstars
 '''
 from AbstractSourceGrabber import AbstractSourceGrabber
-from core.imageprocessing import openCam, getImgFromCam, setCamImgSize
+from imageLibs.imageprocessing import openCam, getImgFromCam, setCamImgSize
 from cv2 import resize
 from cv2.cv import CV_CAP_PROP_FRAME_WIDTH, CV_CAP_PROP_FRAME_HEIGHT
 

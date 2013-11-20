@@ -4,8 +4,10 @@ Created on 16.11.2013
 @author: northernstars
 '''
 from gui.GuiLoader import GuiLoader
-from core.ImageGrabber import ImageGrabber
-from core.imageprocessing import imageToPixmap
+from core.modules.ImageGrabber import ImageGrabber
+from imageLibs.imageprocessing import imageToPixmap
+
+from mrLib.config.mrConfigParser import mrConfigParser
 
 from cv2 import cvtColor, COLOR_GRAY2RGB
 from PyQt4.QtCore import Qt
@@ -16,13 +18,14 @@ class visionModule(object):
     '''
     classdocs
     '''    
+    _config = mrConfigParser()
     _gui = GuiLoader()
     _imageGrabber = ImageGrabber()
     _img = None
     _imgCounter = 0
 
 
-    def __init__(self, gui=None, imageGrabber=None):
+    def __init__(self, gui=None, imageGrabber=None, config=None):
         '''
         Constructor
         '''
@@ -30,6 +33,7 @@ class visionModule(object):
         self._imgCounter = 0
         
         self._gui = gui
+        self._config = config
         self._imageGrabber = imageGrabber
     
     def setImg(self, img=None):

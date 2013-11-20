@@ -3,6 +3,7 @@ Created on 22.10.2013
 
 @author: northernstars
 '''
+from mrLib.logging import mrLogger
 from core.visionModul import visionModule
 
 from PyQt4.QtGui import QGraphicsScene
@@ -16,6 +17,7 @@ from numpy.linalg import solve
 
 from cPickle import dump, load
 from copy import copy
+from os.path import isfile
 
 class Transformation(visionModule):
     '''
@@ -30,11 +32,11 @@ class Transformation(visionModule):
     __basisMatrix = array([[1,0],[0,1]])
     __offset = array([0,0])
 
-    def __init__(self, gui=None, imageGrabber=None):
+    def __init__(self, gui=None, imageGrabber=None, config=None):
         '''
         Constructor
         '''        
-        super(Transformation, self).__init__(gui=gui, imageGrabber=imageGrabber)
+        super(Transformation, self).__init__(gui=gui, imageGrabber=imageGrabber, config=config)
         self.__calibrated = False
         self.__calibrating = False
         self.__basisMatrix = array([[1,0],[0,1]])
@@ -42,6 +44,12 @@ class Transformation(visionModule):
         
         if self._gui != None:
             self.__initGui()
+            
+        if self._config != None:
+            cfgFile = self._config.getConfigValue("CONFIGURATION", "cfgTransformation")
+            if cfgFile != None and self.__loadConfigData(cfgFile):
+                self._gui.status( "Loaded transformtaion config." )
+                mrLogger.logInfo( "Loaded transformation config file " + str(cfgFile) )
         
     def __initGui(self):
         '''
@@ -110,7 +118,18 @@ class Transformation(visionModule):
         options['filetypes'] = "config file (*cfg)"
         src = str( self._gui.dialog(options) )
         
-        if len(src) > 0:           
+        if self.__loadConfigData(src)  :          
+            self._gui.status("Tranformation config loaded.")
+            
+        # restore video streaming mode
+        if active:
+            self._imageGrabber.startVideo()
+            
+    def __loadConfigData(self, src):
+        '''
+        Loads config data from file
+        '''
+        if len(src) > 0 and isfile(src):           
             # load file
             data = load( open(src, "rb") )
             
@@ -121,11 +140,9 @@ class Transformation(visionModule):
             if 'calibrated' in data:
                 self.__calibrated = data['calibrated']
             
-            self._gui.status("Configuration loaded.")
-            
-        # restore video streaming mode
-        if active:
-            self._imageGrabber.startVideo()
+            return True
+        
+        return False
         
     def isCalibrated(self):
         '''

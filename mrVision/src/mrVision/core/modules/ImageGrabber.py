@@ -7,12 +7,15 @@ from gui.GuiLoader import GuiLoader
 from sources.AbstractSourceGrabber import AbstractSourceGrabber
 from sources.CamGrabber import CamGrabber
 from sources.FileGrabber import FileGrabber
-from core.imageprocessing import imageToPixmap
+from imageLibs.imageprocessing import imageToPixmap
 
 from PyQt4.QtGui import QGraphicsScene
 from PyQt4.QtCore import QTimer, Qt
 from cv2 import cvtColor, COLOR_BGR2RGB, COLOR_GRAY2RGB, COLOR_HLS2RGB, COLOR_YUV2RGB, imwrite  # @UnusedImport
 from numpy import ndarray
+
+from mrLib.config.mrConfigParser import mrConfigParser
+
 from copy import copy
 from time import sleep
 
@@ -21,6 +24,7 @@ class ImageGrabber(object):
     '''
     classdocs
     '''
+    _config = mrConfigParser()
     _gui = GuiLoader()
     _img = None
     __sources = []
@@ -30,11 +34,12 @@ class ImageGrabber(object):
     __gview = None
     
 
-    def __init__(self, gui=None):
+    def __init__(self, gui=None, config=None):
         '''
         Constructor
         '''
         self._gui = GuiLoader()
+        self._config = config
         
         if gui != None:
             self._gui = gui

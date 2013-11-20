@@ -15,10 +15,10 @@ from thread import start_new_thread
 from subprocess import call
 
 from gui.GuiLoader import GuiLoader
-from core.ImageGrabber import ImageGrabber
-from core.Distortion import Distortion
-from core.Transformation import Transformation
-from core.Recognition import Recognition
+from core.modules.ImageGrabber import ImageGrabber
+from core.modules.Distortion import Distortion
+from core.modules.Transformation import Transformation
+from core.modules.Recognition import Recognition
 from mrLib.networking.data.mrVisionData import VISION_MODE_STREAM_BOTS, VISION_MODE_STREAM_OBJ, VISION_MODE_STREAM_ALL
 
 
@@ -69,10 +69,10 @@ class mrVisionModule(object):
         # start gui
         if guiloader != None:
             self._gui = guiloader 
-            self._imageGrabber = ImageGrabber(self._gui)
-            self.__distortion = Distortion(self._gui, self._imageGrabber)
-            self.__transformation = Transformation(self._gui, self._imageGrabber)
-            self.__recognition = Recognition(self._gui, self._imageGrabber)
+            self._imageGrabber = ImageGrabber(self._gui, self.__visionConfig)
+            self.__distortion = Distortion(self._gui, self._imageGrabber, self.__visionConfig)
+            self.__transformation = Transformation(self._gui, self._imageGrabber, self.__visionConfig)
+            self.__recognition = Recognition(self._gui, self._imageGrabber, self.__visionConfig)
             
             self.__initGui()
             
@@ -92,7 +92,7 @@ class mrVisionModule(object):
         self.__socketManager.addOnDataRecievedListener( self.__dataRecieved )
         self.__socketManager.addOnClientAddedListener( self.__clientAdded )
         
-        mrLogger.log( "vision module trying to connect to gameserver", mrLogger.LOG_LEVEL['info'] )
+        mrLogger.log( "Vision module trying to connect to gameserver", mrLogger.LOG_LEVEL['info'] )
         
         # wait for connection
         t1 = time()
@@ -103,7 +103,7 @@ class mrVisionModule(object):
             mrLogger.log( "Vision module started", mrLogger.LOG_LEVEL['info'] )
             
         else:
-            msg = "Vision module could establish server at " + str(host)
+            msg = "Vision module could not establish connection to server at " + str(host)
             msg += " on port " + str(port)
             mrLogger.log( msg, mrLogger.LOG_LEVEL['error'] )
             return False
@@ -129,7 +129,6 @@ class mrVisionModule(object):
         '''
         Data recieved listener
         '''
-        print "recieved:", data
         try:
             dom = CreateFromDocument(data)
             if type(dom) == changeVisionMode:
@@ -139,7 +138,7 @@ class mrVisionModule(object):
                 mode = changeVisionMode()
                 mode.visionmode = self.__mode
                 self.__socketManager.sendData( mode.toxml("utf-8", element_name="changevisionmode") )
-                mrLogger.logInfo( "Vision mode set to: " + self.__mode )
+                mrLogger.logDebug( "Vision mode set to: " + self.__mode )
                 
         except:
             pass
@@ -165,7 +164,8 @@ class mrVisionModule(object):
                     b.id = bot['id']
                     print "-----------------"
                     print "bot:", bot
-                    b.location.append( 1-bot['center'][0] )
+                    bot['center'] = ( 1-bot['center'][0], bot['center'][1] )
+                    b.location.append( bot['center'][0] )
                     b.location.append( bot['center'][1] )
                     b.angle = bot['angle']
                     data.append(b)
@@ -190,7 +190,7 @@ class mrVisionModule(object):
         '''
         processes image recognision
         '''       
-        mrLogger.log( "Main loop started", mrLogger.LOG_LEVEL['info'] )
+        mrLogger.logInfo( "Main loop started in mode " + str(self.__mode) )
         
         while self.__mode != mrVisionData.VISION_MODE_TERMINATE:
             #print "mode:", self.__mode
@@ -252,6 +252,5 @@ class mrVisionModule(object):
             sleep(0.01)
             
         # exit program
-        mrLogger.log( "Main loop stopped", mrLogger.LOG_LEVEL['info'] )
+        mrLogger.logInfo( "Main loop stopped" )
         self.__socketManager.stopSocket()
-        exit()

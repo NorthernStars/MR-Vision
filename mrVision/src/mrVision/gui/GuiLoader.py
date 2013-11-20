@@ -40,8 +40,7 @@ class GuiLoader(QMainWindow):
                     }
     
     __statusTimer = QTimer()
-    __statusMsg = ""
-    __statusType = msgTypes['INFO']
+    __statusMsg = []
 
 
     def __init__(self, parent=None):
@@ -49,8 +48,7 @@ class GuiLoader(QMainWindow):
         Constructor
         @param parent: Not needed yet
         '''
-        self.__statusMsg = ""
-        self.__statusType = self.msgTypes['INFO']
+        self.__statusMsg = []
         # create gui
         if parent != None:
             self.ui = Ui_frmMain()
@@ -158,17 +156,29 @@ class GuiLoader(QMainWindow):
         '''
         start = '<span>'
         end = '</span>'
+        sTyp = "INFO"
         
-        # check for message type
-        if self.__statusType == self.msgTypes['ERROR']:
-            start = '<span style="color: red">'
-        elif self.__statusType == self.msgTypes['WARNING']:
-            start = '<span style="color: orange">'
-        
-        # set status labels
-        for obj in self.eDefinitions['status']:
-            value = start + str(self.__statusMsg) + end
-            self.callFunction(obj, 'setText', [str(value)])
+        for msg in self.__statusMsg:
+            # check for message type
+            if msg[1] == self.msgTypes['ERROR']:
+                start = '<span style="color: red">'
+                sTyp = "ERROR" 
+            elif msg[1] == self.msgTypes['WARNING']:
+                start = '<span style="color: orange">'
+                sTyp = "WARNING"
+            
+            # set status labels
+            for obj in self.eDefinitions['status']:
+                value = start + str(msg[0]) + end
+                self.callFunction(obj, 'setText', [str(value)])
+            
+            # print on console
+            if len(self.__statusMsg) >0:
+                print sTyp, ":", msg[0]
+            
+        # remove messages
+        self.__statusMsg = []
+            
             
     def status(self, msg='', msgType=msgTypes['INFO']):
         '''
@@ -177,8 +187,7 @@ class GuiLoader(QMainWindow):
         @param msg: Message to display
         @param msgType: Type of msgTypes[] value for message-type (optional, default= msgTypes['INFO'])
         '''      
-        self.__statusMsg = msg
-        self.__statusType = msgType
+        self.__statusMsg.append( [msg, msgType] )
         
     def dialog(self, options=dialogOptionsDef):
         '''

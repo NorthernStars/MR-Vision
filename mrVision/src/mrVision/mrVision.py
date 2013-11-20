@@ -5,7 +5,6 @@ Mixed-Reality Vision module
 
 @author: hannes
 '''
-
 from mrLib.config.mrConfigParser import mrConfigParser
 from mrLib.logging import mrLogger
 from core.mrVisionModule import mrVisionModule
