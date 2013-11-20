@@ -88,7 +88,7 @@ class mrVisionModule(object):
         '''
         host = self.__visionConfig.getConfigValue("NETWORK", "serverIP")
         port = self.__visionConfig.getConfigValueInt("NETWORK", "serverPort")
-        self.__socketManager = mrSocketManager(host=host, port=port, server=True, udpOn=True, useHandshake=True, name=str(self.__moduleName))
+        self.__socketManager = mrSocketManager(host=host, port=port, server=True, udpOn=True, useHandshake=True, name=str(self.__moduleName), overwriteClients=True)
         self.__socketManager.addOnDataRecievedListener( self.__dataRecieved )
         self.__socketManager.addOnClientAddedListener( self.__clientAdded )
         
