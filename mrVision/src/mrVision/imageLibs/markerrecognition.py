@@ -8,9 +8,9 @@ from os.path import isfile, isdir
 from math import sqrt, atan2, degrees, radians, cos, sin
 
 from cv2 import imread, cvtColor, threshold, getRotationMatrix2D, warpAffine, findContours
-from cv2 import arcLength, approxPolyDP, convexHull, countNonZero
-from cv2 import COLOR_RGB2GRAY, THRESH_BINARY, CHAIN_APPROX_SIMPLE, RETR_EXTERNAL
-from numpy import array, zeros, bool_
+from cv2 import arcLength, approxPolyDP, convexHull, rectangle
+from cv2 import COLOR_RGB2GRAY, THRESH_BINARY, THRESH_BINARY_INV, CHAIN_APPROX_SIMPLE, RETR_EXTERNAL, COLOR_GRAY2RGB
+from numpy import array, zeros, bool_, uint8, count_nonzero
 
 import Image
 
@@ -73,7 +73,7 @@ def analyseMarkerFromFile(fName="", rows=7, columns=7):
         grayCopy = warpAffine(grayCopy, rot, gray.shape) 
     
         # get matrix
-        matrix = getMarkerMatrix( grayCopy, minmax, rows, columns, 128)
+        matrix = getMarkerMatrix( grayCopy, minmax, rows, columns, 0.5)
         
         # add matrix of rotation
         shapeList.append( ( i*90, matrix ) ) 
@@ -167,14 +167,19 @@ def rotateVector(vec, angle):
     r = sqrt(vec[0]*vec[0] + vec[1]*vec[1])
     return array( [r*cos(angle), r*sin(angle)] )
 
-def detectMarkerID(img, minmax, th=100, refMarker={}):
+def detectMarkerID(img, minmax, th=0.3, refMarker={}):
     '''
     Detects marker ID
     '''
     markerID = {'id': -1, 'center': (0,0), 'angle': 0, 'size': (minmax[1]-minmax[0], minmax[3]-minmax[2]) }
     
     # get matrix of image
-    matrix = getMarkerMatrix(img, minmax, th=th)
+    img = threshold(img, 155, 255, THRESH_BINARY_INV)[1]
+    
+    if img == None:
+        return markerID
+    
+    matrix = getMarkerMatrix(img, minmax, th=th, show=False)
     
     MAX = 5
     
@@ -201,6 +206,7 @@ def detectMarkerID(img, minmax, th=100, refMarker={}):
                 MAX = i
                 markerID['id'] = vID
                 markerID['angle'] = angle
+                print "errors", i
         
             if i == 0:
                 break
@@ -209,38 +215,65 @@ def detectMarkerID(img, minmax, th=100, refMarker={}):
     
     return markerID
 
-def getMarkerMatrix(img, minmax, rows=7,columns=7, th=100):
+def getMarkerMatrix(img, minmax, rows=7,columns=7, th=0.3, show=False):
     '''
     Creates code matrix, based on image
     '''    
-    imgH, imgW = img.shape
-    dx = int( round( float(imgW)/float(columns) ) )
-    dy = int( round( float(imgH)/float(rows) ) )
-    maxPixel = dx*dy
+    imgHeight, imgWidth = img.shape
+    borderMultiply = 4.0
     
-    # createempty matrix
+    imgC = cvtColor(img, COLOR_GRAY2RGB)
+    
+    # create empty matrix
     matrix = zeros( (rows, columns), bool_ )
+    matrix2 = zeros( (rows, columns), uint8 )
+    matrix3 = zeros( (rows, columns), uint8 )
     
+    restHeight = imgHeight
     for r in range(rows):
+        # calculate height of pattern
+        drow = restHeight / (rows - r)
+        restWidth = imgWidth
 
         for c in range(columns):
-            startX = r*dx
-            endX = startX+dx
-            startY = c*dy
-            endY = startY+dy
-
+            # calculate width and position of pattern        
+            dcol = restWidth / (columns - c)
+            patternSize = drow * dcol
+            
+            xStart = imgWidth - restWidth
+            yStart = imgHeight - restHeight
+            xEnd = xStart + dcol
+            yEnd = yStart + drow
+            
+            rectangle( imgC, (xStart, yStart), (xEnd, yEnd), (255,0,0) )
+            
             # set matrix element
-            val = countNonZero( img[ startX:endX, startY:endY ] )
+            val = count_nonzero( img[yStart:yEnd, xStart:xEnd] )
+            matrix[r][c] = val
+            matrix2[r][c] = val
             
-            if r == 0 or r == 6 or c == 0 or c == 6 :
-                threshold = 1.5
+            if r == 0 or r == rows-1 or c == 0 or c == columns-1:
+                thres = patternSize * th * borderMultiply
             else:
-                threshold = 3
+                thres = patternSize * th
+
+            matrix[r][c] = val > thres
+            if show:
+                matrix2[r][c] = val
+                matrix3[r][c] = thres
             
-            if val > ( maxPixel / threshold ):
-                matrix[r][c] = True
+            # set rest width and height
+            restWidth -= dcol
             
-                    
-    #print "matrix\n", matrix
+        # set rest height
+        restHeight -= drow
+          
+    if show:  
+        bild = Image.fromarray(imgC)
+        bild.show()           
+        print "matrix:\n", matrix 
+        print "matrix2:\n", matrix2
+        print "matrix3:\n", matrix3    
+        
     return matrix
     

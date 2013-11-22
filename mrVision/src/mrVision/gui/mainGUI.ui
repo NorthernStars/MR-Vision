@@ -1329,7 +1329,7 @@
                      </rect>
                     </property>
                     <property name="text">
-                     <string>0.05</string>
+                     <string>0.1</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1361,7 +1361,7 @@
                      </rect>
                     </property>
                     <property name="text">
-                     <string>1</string>
+                     <string>0.2</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1377,7 +1377,7 @@
                      </rect>
                     </property>
                     <property name="text">
-                     <string>0.05</string>
+                     <string>0.15</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1509,7 +1509,7 @@
                      </rect>
                     </property>
                     <property name="text">
-                     <string>0.05</string>
+                     <string>0.1</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1531,7 +1531,7 @@
                      <number>2</number>
                     </property>
                     <property name="value">
-                     <number>90</number>
+                     <number>128</number>
                     </property>
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -1656,13 +1656,13 @@
                      </rect>
                     </property>
                     <property name="maximum">
-                     <number>255</number>
+                     <number>10</number>
                     </property>
                     <property name="singleStep">
-                     <number>2</number>
+                     <number>1</number>
                     </property>
                     <property name="value">
-                     <number>90</number>
+                     <number>3</number>
                     </property>
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>

@@ -284,7 +284,10 @@ class Transformation(visionModule):
         @return: List of transformed vision objects
         '''
         for obj in objs:
-            obj['center'] = self.transformatePoint( array(obj['center']) )
+            center = self.transformatePoint( array(obj['center']) )
+            center = (center[1], center[0])
+            obj['center'] = center
+            
         
     def _showImage(self):
         '''

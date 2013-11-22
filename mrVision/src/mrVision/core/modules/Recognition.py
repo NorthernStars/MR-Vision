@@ -3,6 +3,7 @@ Created on 22.10.2013
 
 @author: northernstars
 '''
+from mrLib.logging import mrLogger
 from core.visionModul import visionModule
 
 from PyQt4.QtGui import QGraphicsScene
@@ -69,6 +70,7 @@ class Recognition(visionModule):
         
         if self._gui != None:
             self.__initGui()
+            self.__analyseReferenceMarker()
         
     def __initGui(self):
         '''
@@ -115,7 +117,8 @@ class Recognition(visionModule):
         '''
         path = str( self._gui.getObj("txtReferenceMarkerPath").text() )
         self.__referenceMarker = getReferenceMarker(path)
-        self._gui.status( "Analysed all reference markers" )
+        mrLogger.logInfo("Analysed " + str( len(self.__referenceMarker) ) + " reference marker.")
+        self._gui.status( "Analysed " + str( len(self.__referenceMarker) ) + " reference markers" )
         
     
     def __recognizeMarkerAreas(self):
@@ -124,7 +127,7 @@ class Recognition(visionModule):
         '''
         self.__markers = []
         if self._img == None:
-            self._gui.status( "No image!" )
+            self._gui.status( "No image!", self._gui.msgTypes['debug'] )
             return
         
         # get data
@@ -179,12 +182,12 @@ class Recognition(visionModule):
         bots = []
         
         if self.__imgRegArea == None or self.__referenceMarker == None or len( self.__markers ) == 0:
-            self._gui.status( "No image or marker contours!" )
+            self._gui.status( "No image or marker contours!", self._gui.msgTypes['debug'] )
             return
 
         # get data
         th = self._gui.getObj("sliderThesholdMarkerID").value()
-        th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()
+        th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()/10.0
         cannyDown = 30
         cannyUp = 255
         epsilon = float( str(self._gui.getObj("txtMarkerIDEpsilon").text()) )
@@ -226,7 +229,7 @@ class Recognition(visionModule):
             # get data
             inc = self._gui.getObj("chkCalibrateMarkerNInc").isChecked()
             th = self._gui.getObj("sliderThesholdMarkerID").value()
-            th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()
+            th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()/10.0
             cannyDown = 30
             cannyUp = 255
             epsilon = float( str(self._gui.getObj("txtMarkerIDEpsilon").text()) )
@@ -241,7 +244,8 @@ class Recognition(visionModule):
             drawContours( self.__imgAreaDetails, [marker], -1, (255,0,255), -1 )
             marker = self.__recorgnizeMarker(gray, marker, contourPadding, th, th2, epsilon, cannyDown, cannyUp)
             if marker != None:
-                self._gui.status( "Found marker: "+str(marker['id'])+" @ "+str(marker['angle'])+"degree"  )
+                pass
+#                 self._gui.status( "Found marker: "+str(marker['id'])+" @ "+str(marker['angle'])+"degree"  )
             
             # increase n
             if inc:
@@ -254,7 +258,7 @@ class Recognition(visionModule):
             self._gui.getObj("txtCalibrateMarkerIDN").setText( str(n) )
         
             
-    def __recorgnizeMarker(self, gray, marker, contourPadding=0, th=30, th2=128, epsilon=0.01, cannyDown=30, cannyUp=255):
+    def __recorgnizeMarker(self, gray, marker, contourPadding=0, th=30, th2=0.3, epsilon=0.01, cannyDown=30, cannyUp=255):
         '''
         recognize one marker
         '''
@@ -280,20 +284,23 @@ class Recognition(visionModule):
         drawContours(self.__imgID, contours, -1, (255,0,0))
         
         # get first big contour
-        imgArea = sliceImg.shape[0]*sliceImg.shape[1]*0.1
+        imgArea = sliceImg.shape[0]*sliceImg.shape[1]
+        imgAreaMin = imgArea*0.1
+        imgAreaMax = imgArea*0.8
         contour = None
         for cnt in contours:
             cntArea = contourArea(cnt)
-            if cntArea > imgArea:
+#             print "contour", cntArea, "min", imgAreaMin, "max", imgAreaMax, "imgArea", imgArea, "ratio", cntArea/imgArea 
+            if cntArea > imgAreaMin and cntArea < imgAreaMax:
                 contour = cnt
                 break;
                 
         if contour == None:
-            #print "\tno contour found"
+#             print "\tno contour found"
             return None
         
         # get bounding rectangle
-        bb = getBoundingRect(contour)
+        bb = getBoundingRect(contour)        
     
         # get marker vectors
         v0 = bb[0]
@@ -316,7 +323,7 @@ class Recognition(visionModule):
         
         # rotate marker
         rot = getRotationMatrix2D( center, angle, 1.0 )
-        sliceImg = warpAffine( imgTh, rot, sliceImg.shape, borderValue=0 )
+        sliceImg = warpAffine( sliceImg, rot, sliceImg.shape, borderValue=0 )
         
         # rotate bounding box
         angle *= -1
@@ -332,7 +339,7 @@ class Recognition(visionModule):
         bb[3] = getTranslateVector(center, bb[3], False)
         
         # get marker id
-        minX, maxX, minY, maxY = minMax(bb)        
+        minX, maxX, minY, maxY = minMax(bb)      
         
         sliceImg = sliceImg[minY:maxY, minX:maxX]
         markerID = detectMarkerID(sliceImg, minMax(bb), th2, self.__referenceMarker)
@@ -342,11 +349,14 @@ class Recognition(visionModule):
         markerID['center'] = markerCenter
         markerID['angle'] += angle
         
+        print "markerID:", markerID
+        print "\tth:", th, "th2:", th2
+        
         # set image
         sliceImg = cvtColor(sliceImg, COLOR_GRAY2RGB)
 #         drawContours( sliceImg, [bb], -1, (0,255,0) )
-        self.__imgIDDetails = sliceImg
-        
+#         self.__imgIDDetails = sliceImg
+                
         return markerID
             
         

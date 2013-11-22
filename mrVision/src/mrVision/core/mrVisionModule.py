@@ -40,7 +40,7 @@ class mrVisionModule(object):
     __recognition = Recognition()
     
     __socketManager = None
-    __mode = mrVisionData.VISION_MODE_STREAM_ALL
+    __mode = mrVisionData.VISION_MODE_NONE
     __connectionTimeout = 30.0
     __moduleName = None
 
@@ -88,7 +88,7 @@ class mrVisionModule(object):
         '''
         host = self.__visionConfig.getConfigValue("NETWORK", "serverIP")
         port = self.__visionConfig.getConfigValueInt("NETWORK", "serverPort")
-        self.__socketManager = mrSocketManager(host=host, port=port, server=True, udpOn=True, useHandshake=True, name=str(self.__moduleName), overwriteClients=True)
+        self.__socketManager = mrSocketManager(host=host, port=port, server=True, udpOn=True, useHandshake=True, name=str(self.__moduleName))
         self.__socketManager.addOnDataRecievedListener( self.__dataRecieved )
         self.__socketManager.addOnClientAddedListener( self.__clientAdded )
         
@@ -130,7 +130,9 @@ class mrVisionModule(object):
         Data recieved listener
         '''
         try:
+            print "recieved:", data
             dom = CreateFromDocument(data)
+            print "type:", type(dom)
             if type(dom) == changeVisionMode:
                 assert isinstance(dom, changeVisionMode)
                 self.__mode = str(dom.visionmode)
@@ -138,7 +140,8 @@ class mrVisionModule(object):
                 mode = changeVisionMode()
                 mode.visionmode = self.__mode
                 self.__socketManager.sendData( mode.toxml("utf-8", element_name="changevisionmode") )
-                mrLogger.logDebug( "Vision mode set to: " + self.__mode )
+                self._gui.status( "Vision mode set to " + str(self.__mode) )
+                mrLogger.logDebug( "Vision mode set to: " + str(self.__mode) )
                 
         except:
             pass

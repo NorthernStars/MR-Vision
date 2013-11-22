@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainGUI.ui'
 #
-# Created: Wed Nov 20 13:16:44 2013
+# Created: Thu Nov 21 15:33:49 2013
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -612,7 +612,7 @@ class Ui_frmMain(object):
         self.sliderThesholdMarkerID.setGeometry(QtCore.QRect(0, 110, 291, 20))
         self.sliderThesholdMarkerID.setMaximum(255)
         self.sliderThesholdMarkerID.setSingleStep(2)
-        self.sliderThesholdMarkerID.setProperty("value", 90)
+        self.sliderThesholdMarkerID.setProperty("value", 128)
         self.sliderThesholdMarkerID.setOrientation(QtCore.Qt.Horizontal)
         self.sliderThesholdMarkerID.setTickPosition(QtGui.QSlider.TicksBelow)
         self.sliderThesholdMarkerID.setObjectName(_fromUtf8("sliderThesholdMarkerID"))
@@ -644,9 +644,9 @@ class Ui_frmMain(object):
         self.cmdCalibrateMarkerIDN.setObjectName(_fromUtf8("cmdCalibrateMarkerIDN"))
         self.sliderThesholdMarkerIDGray = QtGui.QSlider(self.groupBox_2)
         self.sliderThesholdMarkerIDGray.setGeometry(QtCore.QRect(0, 160, 291, 20))
-        self.sliderThesholdMarkerIDGray.setMaximum(255)
-        self.sliderThesholdMarkerIDGray.setSingleStep(2)
-        self.sliderThesholdMarkerIDGray.setProperty("value", 90)
+        self.sliderThesholdMarkerIDGray.setMaximum(10)
+        self.sliderThesholdMarkerIDGray.setSingleStep(1)
+        self.sliderThesholdMarkerIDGray.setProperty("value", 3)
         self.sliderThesholdMarkerIDGray.setOrientation(QtCore.Qt.Horizontal)
         self.sliderThesholdMarkerIDGray.setTickPosition(QtGui.QSlider.TicksBelow)
         self.sliderThesholdMarkerIDGray.setObjectName(_fromUtf8("sliderThesholdMarkerIDGray"))
@@ -761,10 +761,10 @@ class Ui_frmMain(object):
         self.label_2.setText(_translate("frmMain", "Details", None))
         self.groupBox.setTitle(_translate("frmMain", "Marker area detection", None))
         self.label_3.setText(_translate("frmMain", "Marker area min [%]:", None))
-        self.txtMarkerAreaMin.setText(_translate("frmMain", "0.05", None))
+        self.txtMarkerAreaMin.setText(_translate("frmMain", "0.1", None))
         self.label_4.setText(_translate("frmMain", "max [%]:", None))
-        self.txtMarkerAreaMax.setText(_translate("frmMain", "1", None))
-        self.txtMarkerAreaEpsilon.setText(_translate("frmMain", "0.05", None))
+        self.txtMarkerAreaMax.setText(_translate("frmMain", "0.2", None))
+        self.txtMarkerAreaEpsilon.setText(_translate("frmMain", "0.15", None))
         self.label_6.setText(_translate("frmMain", "Epsilon:", None))
         self.cmdRecognitionMarkerArea.setText(_translate("frmMain", "Calibrate", None))
         self.txtMarkerAreaBlockSize.setText(_translate("frmMain", "13", None))
@@ -773,7 +773,7 @@ class Ui_frmMain(object):
         self.txtMarkerAreaBlur.setText(_translate("frmMain", "5", None))
         self.lblFoundMarker.setText(_translate("frmMain", "Found marker: None", None))
         self.groupBox_2.setTitle(_translate("frmMain", "ID detection", None))
-        self.txtMarkerIDEpsilon.setText(_translate("frmMain", "0.05", None))
+        self.txtMarkerIDEpsilon.setText(_translate("frmMain", "0.1", None))
         self.cmdRecognitionMarkerID.setText(_translate("frmMain", "Calibrate", None))
         self.label_11.setText(_translate("frmMain", "Epsilon:", None))
         self.label_12.setText(_translate("frmMain", "Binary threshold", None))
