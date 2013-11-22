@@ -252,7 +252,7 @@ class mrVisionModule(object):
                 
                 self.__setMode(mrVisionData.VISION_MODE_NONE)
                 
-            sleep(0.01)
+#             sleep(0.01)
             
         # exit program
         mrLogger.logInfo( "Main loop stopped" )

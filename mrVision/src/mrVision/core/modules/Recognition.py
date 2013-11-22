@@ -148,8 +148,11 @@ class Recognition(visionModule):
         imgArea = gray.shape[0]*gray.shape[1]
         
         # threshold and canny
-        gray = medianBlur( gray, blur )
-        gray = adaptiveThreshold( gray, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, blocksize, 0 )
+        try:
+            gray = medianBlur( gray, blur )
+            gray = adaptiveThreshold( gray, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, blocksize, 0 )
+        except:
+            return
         colorImg = cvtColor(gray, COLOR_GRAY2RGB)
         colorImg2 = cvtColor(gray, COLOR_GRAY2RGB)
         
@@ -187,7 +190,7 @@ class Recognition(visionModule):
 
         # get data
         th = self._gui.getObj("sliderThesholdMarkerID").value()
-        th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()/10.0
+        th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()
         cannyDown = 30
         cannyUp = 255
         epsilon = float( str(self._gui.getObj("txtMarkerIDEpsilon").text()) )
@@ -229,7 +232,7 @@ class Recognition(visionModule):
             # get data
             inc = self._gui.getObj("chkCalibrateMarkerNInc").isChecked()
             th = self._gui.getObj("sliderThesholdMarkerID").value()
-            th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()/10.0
+            th2 = self._gui.getObj("sliderThesholdMarkerIDGray").value()
             cannyDown = 30
             cannyUp = 255
             epsilon = float( str(self._gui.getObj("txtMarkerIDEpsilon").text()) )
@@ -258,17 +261,28 @@ class Recognition(visionModule):
             self._gui.getObj("txtCalibrateMarkerIDN").setText( str(n) )
         
             
-    def __recorgnizeMarker(self, gray, marker, contourPadding=0, th=30, th2=0.3, epsilon=0.01, cannyDown=30, cannyUp=255):
+    def __recorgnizeMarker(self, gray, marker, contourPadding=0, th=30, th2=155, epsilon=0.01, cannyDown=30, cannyUp=255):
         '''
         recognize one marker
         '''
         # get minmax of marker and calculate center4
         minX, maxX, minY, maxY = minMax(marker)
+        
+        dx = (maxX-minX)*0.1
+        dy = (maxY-minY)*0.1
+        minX -= dx
+        maxX += 3*dx
+        minY -= dy
+        maxY += 3*dy
+        
         markerCenter = ( minX+(maxX-minX), minY+(maxY-minY) )
         
         # slice and resize marker
-        sliceImg = gray[minY:maxY, minX:maxX]
-        sliceImg = resize( sliceImg, self.__markerSize )
+        try:
+            sliceImg = gray[minY:maxY, minX:maxX]
+            sliceImg = resize( sliceImg, self.__markerSize )
+        except:
+            return None
         
         # threshold and canny
         imgTh = threshold( sliceImg, th, 255, THRESH_BINARY_INV )[1]                
@@ -276,12 +290,15 @@ class Recognition(visionModule):
         
         # set threshold image
 #         self.__imgID = imgTh
+
+#         bild = Image.fromarray(imgTh)
+#         bild.show()
         
         # get contours again
         contours = getContours( canny, epsilon, enConvexHull=False)
         
-        self.__imgID = cvtColor(imgTh, COLOR_GRAY2RGB)
-        drawContours(self.__imgID, contours, -1, (255,0,0))
+#         self.__imgID = cvtColor(imgTh, COLOR_GRAY2RGB)
+#         drawContours(self.__imgID, contours, -1, (255,0,0))
         
         # get first big contour
         imgArea = sliceImg.shape[0]*sliceImg.shape[1]
@@ -347,10 +364,12 @@ class Recognition(visionModule):
         # set angle and center of morker
         angle *= -1
         markerID['center'] = markerCenter
-        markerID['angle'] += angle
         
+        markerID['angle'] -= (90+angle)
+        if markerID['angle'] > 180:
+            markerID['angle'] -= 360
+
         print "markerID:", markerID
-        print "\tth:", th, "th2:", th2
         
         # set image
         sliceImg = cvtColor(sliceImg, COLOR_GRAY2RGB)

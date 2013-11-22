@@ -5,7 +5,7 @@ Created on 13.11.2013
 '''
 from os import listdir, getcwd
 from os.path import isfile, isdir
-from math import sqrt, atan2, degrees, radians, cos, sin
+from math import sqrt, atan2, degrees, radians, cos, sin, atan
 
 from cv2 import imread, cvtColor, threshold, getRotationMatrix2D, warpAffine, findContours
 from cv2 import arcLength, approxPolyDP, convexHull, rectangle
@@ -73,7 +73,7 @@ def analyseMarkerFromFile(fName="", rows=7, columns=7):
         grayCopy = warpAffine(grayCopy, rot, gray.shape) 
     
         # get matrix
-        matrix = getMarkerMatrix( grayCopy, minmax, rows, columns, 0.5)
+        matrix = getMarkerMatrix( grayCopy, minmax, rows, columns )
         
         # add matrix of rotation
         shapeList.append( ( i*90, matrix ) ) 
@@ -122,6 +122,7 @@ def getBoundingRect(cnt = []):
     rightmost = array(cnt[cnt[:,:,0].argmax()][0])
     topmost = array(cnt[cnt[:,:,1].argmin()][0])
     bottommost = array(cnt[cnt[:,:,1].argmax()][0])
+    
     return array( [leftmost, bottommost, rightmost, topmost] )
     
 
@@ -167,19 +168,20 @@ def rotateVector(vec, angle):
     r = sqrt(vec[0]*vec[0] + vec[1]*vec[1])
     return array( [r*cos(angle), r*sin(angle)] )
 
-def detectMarkerID(img, minmax, th=0.3, refMarker={}):
+def detectMarkerID(img, minmax, th=155, refMarker={}):
     '''
     Detects marker ID
     '''
     markerID = {'id': -1, 'center': (0,0), 'angle': 0, 'size': (minmax[1]-minmax[0], minmax[3]-minmax[2]) }
     
     # get matrix of image
-    img = threshold(img, 155, 255, THRESH_BINARY_INV)[1]
+#     print "threshold:", th
+    img = threshold(img, th, 255, THRESH_BINARY_INV)[1]
     
     if img == None:
         return markerID
     
-    matrix = getMarkerMatrix(img, minmax, th=th, show=False)
+    matrix = getMarkerMatrix(img, minmax, show=False)
     
     MAX = 5
     
@@ -215,12 +217,13 @@ def detectMarkerID(img, minmax, th=0.3, refMarker={}):
     
     return markerID
 
-def getMarkerMatrix(img, minmax, rows=7,columns=7, th=0.3, show=False):
+def getMarkerMatrix(img, minmax, rows=7,columns=7, show=False):
     '''
     Creates code matrix, based on image
     '''    
     imgHeight, imgWidth = img.shape
     borderMultiply = 4.0
+    th = 0.3
     
     imgC = cvtColor(img, COLOR_GRAY2RGB)
     
